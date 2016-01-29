@@ -11,13 +11,13 @@ import java.sql.Timestamp;
  *
  * @author Chonghuan
  */
-public class RegistrationModel 
+public class RegisterRequestModel 
 {
     private String email;
     private String username;
     private String password;
     
-    public RegistrationModel()
+    public RegisterRequestModel()
     {
         this.email = "";
         this.username = "";

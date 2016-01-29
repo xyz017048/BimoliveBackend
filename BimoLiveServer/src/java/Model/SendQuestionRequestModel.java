@@ -9,14 +9,14 @@ package Model;
  *
  * @author Chonghuan
  */
-public class QuestionSend 
+public class SendQuestionRequestModel 
 {
     private int idUser;
     private String username;
     private int idLecture;
     private String content;
     
-    public QuestionSend()
+    public SendQuestionRequestModel()
     {
         this.idUser = 0;
         this.idLecture = 0;

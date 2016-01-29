@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Servlet;
+package Controller;
 
 import Model.ReadRequestData;
-import Model.RegistrationModel;
+import Model.RegisterRequestModel;
 import Query.SignUpLoginQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -45,13 +45,13 @@ public class Register extends HttpServlet
 //        System.out.println("Request: received");
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        RegistrationModel regisRequestModel = gson.fromJson(requesString, RegistrationModel.class);
+        RegisterRequestModel regisRequestModel = gson.fromJson(requesString, RegisterRequestModel.class);
         if (regisRequestModel == null)
             return;
         SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
         loginQueryResult.userRegister(regisRequestModel);
         
-        System.out.println("Request: email= " + regisRequestModel.getEmail() + ", password= " +regisRequestModel.getPassword());
+//        System.out.println("Request: email= " + regisRequestModel.getEmail() + ", password= " +regisRequestModel.getPassword());
 
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -67,6 +67,10 @@ public class Register extends HttpServlet
                 out.write(gson.toJson(resultObject));
             }
         } 
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
         finally 
         {
             out.close();

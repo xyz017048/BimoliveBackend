@@ -7,7 +7,7 @@ package Query;
 
 import DBConnector.Connector;
 import Model.CheckResult;
-import Model.RegistrationModel;
+import Model.RegisterRequestModel;
 import Model.ValidLoginResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,7 +24,7 @@ public class SignUpLoginQuery
     private PreparedStatement stmt = null;
     private ResultSet rs = null;
     
-    public void userRegister(RegistrationModel user)
+    public void userRegister(RegisterRequestModel user)
     {
         Connection conn = Connector.Get();
         if (conn == null)
@@ -117,6 +117,8 @@ public class SignUpLoginQuery
     public Object responseLogin(String email, String password)
     {
         int result = 0;
+        ValidLoginResponse loginResponse = new ValidLoginResponse();
+        CheckResult returnResult = new CheckResult(result);
         Connection conn = Connector.Get();
         if (conn == null)
             return null;
@@ -132,7 +134,6 @@ public class SignUpLoginQuery
             if (rs.next())
             {
                 result = 1;
-                ValidLoginResponse loginResponse = new ValidLoginResponse();
                 loginResponse.setResult(result);
                 loginResponse.setIdUser(rs.getInt("idUser"));
                 loginResponse.setEmail(rs.getString("email"));
@@ -140,12 +141,17 @@ public class SignUpLoginQuery
                 loginResponse.setRoleLevel(rs.getInt("roleLevel"));
                 loginResponse.setFirstName(rs.getString("firstName"));
                 loginResponse.setLastName(rs.getString("lastName"));
-                loginResponse.setLastLogin(rs.getString("lastLogin"));
+                loginResponse.setLastLogin(rs.getString("lastLogin").substring(0,19));
                 loginResponse.setProfile(rs.getString("profile"));
                 loginResponse.setIntroWords(rs.getString("introWords"));
-                loginResponse.setRegisDate(rs.getString("regisDate"));
-                return loginResponse;
+                loginResponse.setRegisDate(rs.getString("regisDate").substring(0,19));
             }
+            query = "UPDATE UserBasic set lastLogin = ?"+
+                    " WHERE email = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+            stmt.setString(2, email);
+            stmt.executeUpdate();
         }
         catch (Exception e)
         {
@@ -155,8 +161,12 @@ public class SignUpLoginQuery
         {
             Connector.CloseStmt(stmt);
             Connector.Close(conn);
-        }    
-        CheckResult returnResult = new CheckResult(0);
+        } 
+        if (result == 1)
+        {
+            
+            return loginResponse;
+        }
         return returnResult;
     }
 }

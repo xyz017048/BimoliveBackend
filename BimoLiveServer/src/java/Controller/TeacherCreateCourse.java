@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Servlet;
+package Controller;
 
 import Model.CheckResult;
 import Model.ReadRequestData;
-import Query.SignUpLoginQuery;
+import Model.CourseModel;
+import Query.CourseQuery;
 import com.google.gson.Gson;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -22,14 +22,13 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "EmailCheck", urlPatterns = {"/emailCheck"})
-public class EmailCheck extends HttpServlet 
+@WebServlet(name = "TeacherCreateCourse", urlPatterns = {"/teacher/createcourse"})
+public class TeacherCreateCourse extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-       
     }
 
     /**
@@ -44,15 +43,14 @@ public class EmailCheck extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-//        System.out.println("Request: received");
-        String requestString = ReadRequestData.getData(request);
+        //        System.out.println("Request: received");
+        String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        Email emailObject = gson.fromJson(requestString, Email.class);
-        if(emailObject == null)
+        
+        CourseModel course = gson.fromJson(requesString, CourseModel.class);
+        if (course == null)
             return;
-        String email = emailObject.getEmail();
-        System.out.println("Request: email= " + email);
-
+       
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -61,13 +59,17 @@ public class EmailCheck extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            SignUpLoginQuery queryResult = new SignUpLoginQuery();
-            CheckResult resultObject = queryResult.checkEmail(email);
-            if (resultObject != null)
+            CourseQuery courseQuery = new CourseQuery();
+            CheckResult result = courseQuery.addNewCourse(course);
+            if (result != null)
             {
-                out.write(gson.toJson(resultObject));
+                out.write(gson.toJson(result));
             }
         } 
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
         finally 
         {
             out.close();
@@ -84,18 +86,4 @@ public class EmailCheck extends HttpServlet
         return "Short description";
     }// </editor-fold>
 
-    private class Email
-    {
-        private String email;
-        public Email(String email)
-        {
-            this.email = email;
-        }
-
-        public String getEmail() 
-        {
-            return email;
-        }
-        
-    }
 }

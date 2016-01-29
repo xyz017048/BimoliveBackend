@@ -3,13 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Servlet;
+package Controller;
 
-import Model.QuestionSend;
+import Model.GetQuestionRequestModel;
+import Model.GetQuestionResponseModel;
+import Model.ReadRequestData;
 import Query.QuestionQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "TeacherGetQuestions", urlPatterns = {"/teacher/questions"})
-public class TeacherGetQuestions extends HttpServlet 
+@WebServlet(name = "GetQuestions", urlPatterns = {"/getquestions"})
+public class GetQuestions extends HttpServlet 
 {
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -37,16 +40,6 @@ public class TeacherGetQuestions extends HttpServlet
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        System.out.println("Request: received");
-//        response.setHeader("Access-Control-Allow-Origin", "*");
-        String callback = request.getParameter("callback");
-        System.out.println("request callback: " + callback);
-        List<QuestionSend> questions = QuestionQuery.getQuestions();
-        if (questions != null)
-        {
-            Gson gson = new Gson();
-            response.getWriter().write(callback + "(" + gson.toJson(questions)+");");
-        }
     }
 
     /**
@@ -61,7 +54,41 @@ public class TeacherGetQuestions extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        doGet(request,response);
+        //        System.out.println("Request: received");
+        String requesString = ReadRequestData.getData(request);
+        Gson gson= new Gson();
+        GetQuestionRequestModel requestModel = gson.fromJson(requesString, GetQuestionRequestModel.class);
+        if (requestModel == null)
+            return;
+        
+        int roleLevel = requestModel.getRoleLevel();
+        int idLecture = requestModel.getIdLecture();
+        int interval = requestModel.getInterval();
+        List<GetQuestionResponseModel> questions = new ArrayList<GetQuestionResponseModel>();
+        
+        response.setContentType("application/json;charset=UTF-8");
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        response.setHeader("Access-Control-Max-Age", "3600");
+        response.setHeader("Access-Control-Allow-Headers", "x-requested-with");
+        PrintWriter out = response.getWriter();
+        try 
+        {
+            QuestionQuery questionQuery = new QuestionQuery();
+            questions = questionQuery.getQuestions(roleLevel,idLecture,interval);
+            if (questions != null)
+            {
+                out.write(gson.toJson(questions));
+            }
+        } 
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        finally 
+        {
+            out.close();
+        }
     }
 
     /**
@@ -74,5 +101,4 @@ public class TeacherGetQuestions extends HttpServlet
     {
         return "Short description";
     }// </editor-fold>
-
 }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Servlet;
+package Controller;
 
 import Model.CheckResult;
 import Model.ReadRequestData;
@@ -61,7 +61,7 @@ public class UsernameCheck extends HttpServlet
             return;
         }
         String username = usernameObject.getUsername();
-        System.out.println("Request: username= " + username);
+//        System.out.println("Request: username= " + username);
 
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -78,6 +78,10 @@ public class UsernameCheck extends HttpServlet
                 out.write(gson.toJson(resultObject));
             }
         } 
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
         finally 
         {
             out.close();
