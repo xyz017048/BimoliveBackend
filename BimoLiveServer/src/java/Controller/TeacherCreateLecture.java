@@ -5,13 +5,13 @@
  */
 package Controller;
 
-import Model.CourseCategoryModel;
+import Model.CheckResult;
+import Model.LectureModel;
 import Model.ReadRequestData;
 import Query.CourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,13 +22,35 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "GetCategory", urlPatterns = {"/getcategory"})
-public class GetCategory extends HttpServlet 
+@WebServlet(name = "TeacherCreateLecture", urlPatterns = {"/teacher/createlecture"})
+public class TeacherCreateLecture extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        //        System.out.println("Request: received");
+        String requesString = ReadRequestData.getData(request);
+        Gson gson= new Gson();
+        
+        LectureModel lecture = gson.fromJson(requesString, LectureModel.class);
+        if (lecture == null)
+            return;
+       
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -38,11 +60,10 @@ public class GetCategory extends HttpServlet
         try 
         {
             CourseQuery courseQuery = new CourseQuery();
-            Gson gson = new Gson();
-            List<CourseCategoryModel> categoryList = courseQuery.getCategory();
-            if (categoryList != null)
+            CheckResult result = courseQuery.addNewLecture(lecture);
+            if (result != null)
             {
-                out.write(gson.toJson(categoryList));
+                out.write(gson.toJson(result));
             }
         } 
         catch(Exception ex)
@@ -53,13 +74,6 @@ public class GetCategory extends HttpServlet
         {
             out.close();
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        doGet(request, response);
     }
 
     /**

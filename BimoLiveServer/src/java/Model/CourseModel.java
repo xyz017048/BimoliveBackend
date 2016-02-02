@@ -132,18 +132,17 @@ public class CourseModel
     
     public Timestamp convertToTimestamp(String date)
     {
-        Timestamp timestamp;
+        Timestamp timestamp = null;
         try
         {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             Date parsedDate = dateFormat.parse(date);
             timestamp = new Timestamp(parsedDate.getTime());
-            return timestamp;
         }
         catch(Exception e)
         {
             e.printStackTrace();
         }
-        return null;
+        return timestamp;
     }
 }

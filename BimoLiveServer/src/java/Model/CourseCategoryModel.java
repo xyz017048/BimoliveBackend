@@ -9,12 +9,12 @@ package Model;
  *
  * @author Chonghuan
  */
-public class GetCategoryResponseModel 
+public class CourseCategoryModel 
 {
     private String abbreviation;
     private String fullName;
     
-    public GetCategoryResponseModel(String abbreviation, String fullName)
+    public CourseCategoryModel(String abbreviation, String fullName)
     {
         this.abbreviation = abbreviation;
         this.fullName = fullName;

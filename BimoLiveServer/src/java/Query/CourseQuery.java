@@ -8,7 +8,8 @@ package Query;
 import DBConnector.Connector;
 import Model.CheckResult;
 import Model.CourseModel;
-import Model.GetCategoryResponseModel;
+import Model.CourseCategoryModel;
+import Model.LectureModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,9 +27,9 @@ public class CourseQuery
     private  PreparedStatement stmt = null;
     private  ResultSet rs = null;
     
-    public List<GetCategoryResponseModel> getCategory()
+    public List<CourseCategoryModel> getCategory()
     {
-        List<GetCategoryResponseModel> categoryList = new ArrayList<GetCategoryResponseModel>();
+        List<CourseCategoryModel> categoryList = new ArrayList<CourseCategoryModel>();
         Connection conn = Connector.Get();
         if (conn == null)
             return null;
@@ -39,7 +40,7 @@ public class CourseQuery
             rs = stmt.executeQuery();
             while (rs.next())
             {
-                GetCategoryResponseModel category = new GetCategoryResponseModel(rs.getString("abbreviation"), rs.getString("fullName"));
+                CourseCategoryModel category = new CourseCategoryModel(rs.getString("abbreviation"), rs.getString("fullName"));
                 categoryList.add(category);
             }  
         }
@@ -90,5 +91,127 @@ public class CourseQuery
             Connector.Close(conn);
         }
         return result;
+    }
+    
+    public CheckResult addNewLecture(LectureModel lecture)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "INSERT INTO Lecture (idCourse,lectureNum, topic,intro,image, status, url, createDate,scheduleDate, startTime, endTime) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1,lecture.getIdCourse());
+            stmt.setInt(2,lecture.getLectureNum());
+            stmt.setString(3, lecture.getTopic());
+            stmt.setString(4, lecture.getIntro());
+            stmt.setString(5,lecture.getImage());
+            stmt.setString(6,"wait");
+            stmt.setString(7,"");
+            stmt.setTimestamp(8,new Timestamp(System.currentTimeMillis()));
+            stmt.setDate(9,lecture.getSqlDate(lecture.getScheduleDate()));
+            stmt.setTime(10,lecture.getSqlTime(lecture.getStartTime()));
+            stmt.setTime(11,lecture.getSqlTime(lecture.getEndTime()));
+            stmt.executeUpdate();
+            
+            result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
+    public List<CourseModel> getCourses(int idUser)
+    {
+        List<CourseModel> courses = new ArrayList<CourseModel>();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+            query = "SELECT * FROM CourseInfo WHERE idUser = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            rs = stmt.executeQuery();
+            while(rs.next())
+            {
+                CourseModel course = new CourseModel();
+                course.setIdCourse(rs.getInt("idCourse"));
+                course.setIdUser(rs.getInt("idUser"));
+                course.setCategory(rs.getString("category"));
+                course.setLevelNumber(rs.getInt("levelNumber"));
+                course.setName(rs.getString("name"));
+                course.setIntro(rs.getString("intro"));
+                course.setImage(rs.getString("image"));
+                course.setCreateDate(rs.getString("createDate").substring(0,19));
+                course.setStartDate(rs.getString("startDate").substring(0,19));
+                course.setEndDate(rs.getString("endDate").substring(0,19));
+                course.setEndFlag(rs.getInt("endFlag"));
+                courses.add(course);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return courses;
+    }
+    
+    public List<LectureModel> getLectures(int idCourse)
+    {
+        List<LectureModel> lectures = new ArrayList<LectureModel>();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+            query = "SELECT * FROM Lecture WHERE idCourse = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idCourse);
+            rs = stmt.executeQuery();
+            while(rs.next())
+            {
+                LectureModel lecture = new LectureModel();
+                lecture.setIdCourse(rs.getInt("idCourse"));
+                lecture.setIdLecture(rs.getInt("idLecture"));
+                lecture.setLectureNum(rs.getInt("lectureNum"));
+                lecture.setTopic(rs.getString("topic"));
+                lecture.setIntro(rs.getString("intro"));
+                lecture.setImage(rs.getString("image"));
+                lecture.setCreateDate(rs.getString("createDate").substring(0,19));
+                lecture.setScheduleDate(rs.getString("scheduleDate"));
+                lecture.setStartTime(rs.getTime("startTime").toString().substring(0,5));
+                lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
+                lecture.setStatus(rs.getString("status"));
+                lecture.setUrl(rs.getString("url"));
+                lectures.add(lecture);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return lectures;
     }
 }

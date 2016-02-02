@@ -103,13 +103,13 @@ public class QuestionQuery
         List<GetQuestionResponseModel> questions = new ArrayList<GetQuestionResponseModel>();
         Connection conn = Connector.Get();
         if (conn == null)
-            return questions;
+            return null;
         
         try
         {
             if(roleLevel == 1 && interval == 0) //student, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and (status = ? or status = ?)";
+                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and (status = ? or status = ?) order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, ANSWERSTRING);
@@ -127,12 +127,14 @@ public class QuestionQuery
             {
                 Timestamp time = new Timestamp(System.currentTimeMillis()-interval*1000);
                 query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and (status = ? or status = ?) and sendTime > ?";
+                        "WHERE idLecture = ? and ((status = ? and changeTime > ? ) or (status = ? and solveTime > ?))"
+                        + "order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,ANSWERSTRING);
-                stmt.setString(3, SOLVESTRING);
-                stmt.setTimestamp(4, time);
+                stmt.setTimestamp(3, time);
+                stmt.setString(4, SOLVESTRING);
+                stmt.setTimestamp(5, time);
             }
             else if (roleLevel == 2)
             {

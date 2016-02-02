@@ -5,12 +5,13 @@
  */
 package Controller;
 
-import Model.CourseCategoryModel;
+import Model.CourseModel;
 import Model.ReadRequestData;
 import Query.CourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -22,13 +23,38 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "GetCategory", urlPatterns = {"/getcategory"})
-public class GetCategory extends HttpServlet 
+@WebServlet(name = "TeacherGetAllCourses", urlPatterns = {"/teacher/courses"})
+public class TeacherGetAllCourses extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException 
+    {
+        //        System.out.println("Request: received");
+        String requesString = ReadRequestData.getData(request);
+        Gson gson= new Gson();
+        UserId user = gson.fromJson(requesString, UserId.class);
+        if (user == null)
+            return;
+        
+        int idUser = user.getIdUser();
+        
+        List<CourseModel> courses = new ArrayList<CourseModel>();
+        
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -38,11 +64,10 @@ public class GetCategory extends HttpServlet
         try 
         {
             CourseQuery courseQuery = new CourseQuery();
-            Gson gson = new Gson();
-            List<CourseCategoryModel> categoryList = courseQuery.getCategory();
-            if (categoryList != null)
+            courses = courseQuery.getCourses(idUser);
+            if (courses != null)
             {
-                out.write(gson.toJson(categoryList));
+                out.write(gson.toJson(courses));
             }
         } 
         catch(Exception ex)
@@ -55,13 +80,6 @@ public class GetCategory extends HttpServlet
         }
     }
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException 
-    {
-        doGet(request, response);
-    }
-
     /**
      * Returns a short description of the servlet.
      *
@@ -72,4 +90,19 @@ public class GetCategory extends HttpServlet
         return "Short description";
     }// </editor-fold>
 
+    
+    private class UserId
+    {
+        private int idUser;
+        
+        public UserId(int idUser)
+        {
+            this.idUser = idUser;
+        }
+
+        public int getIdUser() 
+        {
+            return idUser;
+        }
+    }
 }
