@@ -7,7 +7,7 @@ package Controller;
 
 import Model.CourseModel;
 import Model.ReadRequestData;
-import Model.UserId;
+import Model.IdModel;
 import Query.CourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class TeacherGetAllCourses extends HttpServlet
         //        System.out.println("Request: received");
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        UserId user = gson.fromJson(requesString, UserId.class);
+        IdModel user = gson.fromJson(requesString, IdModel.class);
         if (user == null)
             return;
         

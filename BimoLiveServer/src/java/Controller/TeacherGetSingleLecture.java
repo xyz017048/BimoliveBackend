@@ -5,10 +5,10 @@
  */
 package Controller;
 
-import Model.GenerateKey;
-import Model.ReadRequestData;
 import Model.IdModel;
-import Query.TeacherGenerateKeyQuery;
+import Model.LectureModel;
+import Model.ReadRequestData;
+import Query.CourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "TeacherGenerateKey", urlPatterns = {"/teacher/generatekey"})
-public class TeacherGenerateKey extends HttpServlet 
+@WebServlet(name = "TeacherGetSingleLecture", urlPatterns = {"/teacher/singlelecture"})
+public class TeacherGetSingleLecture extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,11 +45,11 @@ public class TeacherGenerateKey extends HttpServlet
     {
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        IdModel user = gson.fromJson(requesString, IdModel.class);
-        if (user == null)
+        IdModel idModel = gson.fromJson(requesString, IdModel.class);
+        if (idModel == null)
             return;
         
-        int idUser = user.getIdUser();
+        int idLecture = idModel.getIdLecture();
         
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -59,19 +59,11 @@ public class TeacherGenerateKey extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            
-            TeacherGenerateKeyQuery query = new TeacherGenerateKeyQuery();
-            GenerateKey keyModel = new GenerateKey();
-            keyModel.generateKey();
-            while(!query.checkKey(keyModel.getKey(), idUser))
+            CourseQuery courseQuery = new CourseQuery();
+            LectureModel lecture = courseQuery.getSingleLecture(idLecture);
+            if (lecture != null)
             {
-                keyModel.generateKey();
-                System.out.println("in while loop");
-            }
-            
-            if (keyModel != null)
-            {
-                out.write(gson.toJson(keyModel));
+                out.write(gson.toJson(lecture));
             }
         } 
         catch(Exception ex)
@@ -90,8 +82,7 @@ public class TeacherGenerateKey extends HttpServlet
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() 
-    {
+    public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

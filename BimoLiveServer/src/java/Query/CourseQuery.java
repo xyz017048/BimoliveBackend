@@ -175,6 +175,46 @@ public class CourseQuery
         return courses;
     }
     
+    public CourseModel getSingleCourse(int idCourse)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CourseModel course = new CourseModel();
+        try
+        {
+            query = "SELECT * FROM CourseInfo WHERE idCourse = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idCourse);
+            rs = stmt.executeQuery();
+            if(rs.next())
+            {
+                course.setIdCourse(rs.getInt("idCourse"));
+                course.setIdUser(rs.getInt("idUser"));
+                course.setCategory(rs.getString("category"));
+                course.setLevelNumber(rs.getInt("levelNumber"));
+                course.setName(rs.getString("name"));
+                course.setIntro(rs.getString("intro"));
+                course.setImage(rs.getString("image"));
+                course.setCreateDate(rs.getString("createDate").substring(0,19));
+                course.setStartDate(rs.getString("startDate").substring(0,19));
+                course.setEndDate(rs.getString("endDate").substring(0,19));
+                course.setEndFlag(rs.getInt("endFlag"));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return course;
+    }
+    
+    
     public List<LectureModel> getLectures(int idCourse)
     {
         List<LectureModel> lectures = new ArrayList<LectureModel>();
@@ -217,6 +257,47 @@ public class CourseQuery
         }
         return lectures;
     }
+    
+    public LectureModel getSingleLecture(int idLecture)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        LectureModel lecture = new LectureModel();
+        try
+        {
+            query = "SELECT * FROM Lecture WHERE idLecture = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idLecture);
+            rs = stmt.executeQuery();
+            if(rs.next())
+            {
+                lecture.setIdCourse(rs.getInt("idCourse"));
+                lecture.setIdLecture(rs.getInt("idLecture"));
+                lecture.setLectureNum(rs.getInt("lectureNum"));
+                lecture.setTopic(rs.getString("topic"));
+                lecture.setIntro(rs.getString("intro"));
+                lecture.setImage(rs.getString("image"));
+                lecture.setCreateDate(rs.getString("createDate").substring(0,19));
+                lecture.setScheduleDate(rs.getString("scheduleDate"));
+                lecture.setStartTime(rs.getTime("startTime").toString().substring(0,5));
+                lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
+                lecture.setStatus(rs.getString("status"));
+                lecture.setUrl(rs.getString("url"));
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return lecture;
+    }
+    
     
     public CheckResult startLecture(int idUser, int idLecture)
     {
