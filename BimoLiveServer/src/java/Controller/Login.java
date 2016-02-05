@@ -59,6 +59,7 @@ public class Login extends HttpServlet
         LoginRequestModel loginRequestModel = gson.fromJson(requeString, LoginRequestModel.class);
         if(loginRequestModel == null)
             return;
+        loginRequestModel.encrypt();
         String email = loginRequestModel.getEmail();
         String password = loginRequestModel.getPassword();
 //        System.out.println("Request: email= " + email + ", password= " +password);

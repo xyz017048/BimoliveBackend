@@ -41,4 +41,9 @@ public class LoginRequestModel
     public void setPassword(String password) {
         this.password = password;
     }
+    
+    public void encrypt()
+    {
+        this.password = PasswordCrypto.getEncrypt(password);
+    }
 }

@@ -28,7 +28,7 @@ public class QuestionQuery
     private  ResultSet rs = null;
     private final String NEWSTATUS = "new";
     private final String ANSWERSTRING = "answer";
-    private final String SOLVESTRING = "solve";
+//    private final String SOLVESTRING = "solve";
     
     public CheckResult saveQuestion(SendQuestionRequestModel question)
     {
@@ -73,9 +73,9 @@ public class QuestionQuery
         int idQuestion = action.getIdQuestion();
         try
         {
-            if (status.equals("solve"))
-                query = "UPDATE QuestionQueue set status = ?, solveTime = ? where idQuestion = ?";
-            else
+//            if (status.equals("solve"))
+//                query = "UPDATE QuestionQueue set status = ?, solveTime = ? where idQuestion = ?";
+//            else
                 query = "UPDATE QuestionQueue set status = ?, changeTime = ? where idQuestion = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1,action.getStatus());
@@ -109,15 +109,15 @@ public class QuestionQuery
         {
             if(roleLevel == 1 && interval == 0) //student, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and (status = ? or status = ?) order by changeTime";
+                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, ANSWERSTRING);
-                stmt.setString(3, SOLVESTRING);
+//                stmt.setString(3, SOLVESTRING);
             }
             else if (roleLevel == 2 && interval == 0) //teacher, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ?";
+                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by sendTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, NEWSTATUS);
@@ -127,14 +127,14 @@ public class QuestionQuery
             {
                 Timestamp time = new Timestamp(System.currentTimeMillis()-interval*1000);
                 query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and ((status = ? and changeTime > ? ) or (status = ? and solveTime > ?))"
+                        "WHERE idLecture = ? and (status = ? and changeTime > ? )"
                         + "order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,ANSWERSTRING);
                 stmt.setTimestamp(3, time);
-                stmt.setString(4, SOLVESTRING);
-                stmt.setTimestamp(5, time);
+//                stmt.setString(4, SOLVESTRING);
+//                stmt.setTimestamp(5, time);
             }
             else if (roleLevel == 2)
             {

@@ -6,8 +6,8 @@
 package Controller;
 
 import Model.ReadRequestData;
-import Model.RegisterRequestModel;
-import Query.SignUpLoginQuery;
+import Model.TeacherStartLectureRequestModel;
+import Query.CourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,10 +21,10 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "Register", urlPatterns = {"/register"})
-public class Register extends HttpServlet 
+@WebServlet(name = "TeacherStartLecture", urlPatterns = {"/teacher/startlecture"})
+public class TeacherStartLecture extends HttpServlet 
 {
-@Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
@@ -42,18 +42,13 @@ public class Register extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-//        System.out.println("Request: received");
-        String requesString = ReadRequestData.getData(request);
+        String requeString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        RegisterRequestModel regisRequestModel = gson.fromJson(requesString, RegisterRequestModel.class);
-        
-        if (regisRequestModel == null)
+        TeacherStartLectureRequestModel startLectureRequestModel = gson.fromJson(requeString, TeacherStartLectureRequestModel.class);
+        if(startLectureRequestModel == null)
             return;
-        regisRequestModel.encrypt();
-        SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
-        loginQueryResult.userRegister(regisRequestModel);
-        
-//        System.out.println("Request: email= " + regisRequestModel.getEmail() + ", password= " +regisRequestModel.getPassword());
+        int idUser = startLectureRequestModel.getIdUser();
+        int idLecture = startLectureRequestModel.getIdLecture();
 
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -63,7 +58,8 @@ public class Register extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            Object resultObject = loginQueryResult.responseLogin(regisRequestModel.getEmail(), regisRequestModel.getPassword());
+            CourseQuery courseQuery = new CourseQuery();
+            Object resultObject = courseQuery.startLecture(idUser, idLecture);
             if (resultObject != null)
             {
                 out.write(gson.toJson(resultObject));

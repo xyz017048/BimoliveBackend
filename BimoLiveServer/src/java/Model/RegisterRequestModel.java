@@ -52,4 +52,9 @@ public class RegisterRequestModel
     {
         this.password = password;
     } 
+    
+    public void encrypt()
+    {
+        this.password = PasswordCrypto.getEncrypt(password);
+    }
 }

@@ -26,6 +26,9 @@ public class CourseQuery
     private  String query = null;
     private  PreparedStatement stmt = null;
     private  ResultSet rs = null;
+    private final String WAITSTATUS = "wait";
+    private final String LIVESTATUS = "live";
+    private final String REPLAYSTATUS = "replay";
     
     public List<CourseCategoryModel> getCategory()
     {
@@ -108,7 +111,7 @@ public class CourseQuery
             stmt.setString(3, lecture.getTopic());
             stmt.setString(4, lecture.getIntro());
             stmt.setString(5,lecture.getImage());
-            stmt.setString(6,"wait");
+            stmt.setString(6,WAITSTATUS);
             stmt.setString(7,"");
             stmt.setTimestamp(8,new Timestamp(System.currentTimeMillis()));
             stmt.setDate(9,lecture.getSqlDate(lecture.getScheduleDate()));
@@ -213,5 +216,50 @@ public class CourseQuery
             Connector.Close(conn);
         }
         return lectures;
+    }
+    
+    public CheckResult startLecture(int idUser, int idLecture)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        String key = "";
+        try
+        {
+            // get the key
+            query = "SELECT keyString FROM UserBasic WHERE idUser = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            rs = stmt.executeQuery();
+            if (rs.next() )
+            {
+                if (rs.getString("keyString").isEmpty())
+                    key = Integer.toString(idUser);
+                else
+                    key = rs.getString("keyString");
+            }
+            else
+                return null;
+            query = "UPDATE Lecture set status = ?, url = ?, startTime = ? WHERE idLecture = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, LIVESTATUS);
+            stmt.setString(2, key);
+            stmt.setTime(3,new java.sql.Time((new java.util.Date()).getTime()));
+            stmt.setInt(4,idLecture);
+            stmt.executeUpdate();
+            
+            result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
     }
 }

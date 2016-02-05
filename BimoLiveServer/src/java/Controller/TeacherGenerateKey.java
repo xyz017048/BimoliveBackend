@@ -5,9 +5,10 @@
  */
 package Controller;
 
+import Model.GenerateKey;
 import Model.ReadRequestData;
-import Model.RegisterRequestModel;
-import Query.SignUpLoginQuery;
+import Model.UserId;
+import Query.TeacherGenerateKeyQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,10 +22,10 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "Register", urlPatterns = {"/register"})
-public class Register extends HttpServlet 
+@WebServlet(name = "TeacherGenerateKey", urlPatterns = {"/teacher/generatekey"})
+public class TeacherGenerateKey extends HttpServlet 
 {
-@Override
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
@@ -42,19 +43,14 @@ public class Register extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-//        System.out.println("Request: received");
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        RegisterRequestModel regisRequestModel = gson.fromJson(requesString, RegisterRequestModel.class);
-        
-        if (regisRequestModel == null)
+        UserId user = gson.fromJson(requesString, UserId.class);
+        if (user == null)
             return;
-        regisRequestModel.encrypt();
-        SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
-        loginQueryResult.userRegister(regisRequestModel);
         
-//        System.out.println("Request: email= " + regisRequestModel.getEmail() + ", password= " +regisRequestModel.getPassword());
-
+        int idUser = user.getIdUser();
+        
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -63,10 +59,19 @@ public class Register extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            Object resultObject = loginQueryResult.responseLogin(regisRequestModel.getEmail(), regisRequestModel.getPassword());
-            if (resultObject != null)
+            
+            TeacherGenerateKeyQuery query = new TeacherGenerateKeyQuery();
+            GenerateKey keyModel = new GenerateKey();
+            keyModel.generateKey();
+            while(!query.checkKey(keyModel.getKey(), idUser))
             {
-                out.write(gson.toJson(resultObject));
+                keyModel.generateKey();
+                System.out.println("in while loop");
+            }
+            
+            if (keyModel != null)
+            {
+                out.write(gson.toJson(keyModel));
             }
         } 
         catch(Exception ex)
@@ -85,7 +90,8 @@ public class Register extends HttpServlet
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+    public String getServletInfo() 
+    {
         return "Short description";
     }// </editor-fold>
 
