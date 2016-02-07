@@ -7,7 +7,7 @@ package Controller;
 
 import Model.CourseCategoryModel;
 import Model.ReadRequestData;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,7 +37,7 @@ public class GetCategory extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
             Gson gson = new Gson();
             List<CourseCategoryModel> categoryList = courseQuery.getCategory();
             if (categoryList != null)

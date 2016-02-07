@@ -4,6 +4,7 @@ Base URL:
 
 All request and responses are in JSON.
 
+*********************************   Sign up/Sign in     ******************************
 Sign up - Check Username:
 	Request: POST   /usernameCheck
 			{
@@ -74,6 +75,7 @@ Login:  (teacher: admin@gmail.com, admin;  student: student@gmail.com,  student)
 				"regisDate":            STRING
 			}
 
+*********************************   Apply to be a teacher   **********************************
 account setting, apply to be a teacher (change key)
 
 Teacher generate a key:
@@ -86,6 +88,8 @@ Teacher generate a key:
                                     "keyString":        STRING
                                 }
 
+
+*********************************   Question send/get/answer/delete/ban/kick    **********************
 Question ask and answer Part:
 	For student view to send a question:
 		Request: POST /student/sendquestion
@@ -135,6 +139,8 @@ Question ask and answer Part:
                                     "result":           INT (result=0 fail; reuslt=1 success)
                                 }        
 
+
+**************************  Teacher create/get/update course(s)/lecture(s)  ************************
 Teacher create/update/get [single course/ all courses/ single lecture/all lectures]:
         Get course category: 
                 Request: POST/GET  /getcategory
@@ -221,7 +227,6 @@ Teacher create/update/get [single course/ all courses/ single lecture/all lectur
         Get all lectures of one course: when you click on one course, you will request all lectures of this course.
                 Request:    POST    /teacher/lectures
                                 {
-                                    "idUser":           INT
                                     "idCourse":         INT
                                 }
                                   
@@ -298,6 +303,8 @@ Teacher start a lecture:
 
 Teacher upload a video: (change status = "replay", url = where in amazon cloud)
 
+
+*************************** Student get all live/replay videos  ***************************
 Get all live videos:
             Request: GET/POST   /livevideos
             ResPonse:       
@@ -318,7 +325,7 @@ Get all live videos:
                         ]
 
 
-get all replay videos:
+Get all replay videos:
             Request: GET/POST   /replayvideos
             ResPonse:       
                         [
@@ -336,4 +343,38 @@ get all replay videos:
                             ...
                             ...
                         ]
+
+************************    Student get course/lecture info ***************************
+
+Student Get a single Lecture:         NOTE: if 'status' == 'wait', student can only see the info of this lecture.
+                                            if 'status' == 'live', show the live video to the student, and can send a question if login
+                                            if 'status' == 'replay', show the video to the student, all answered questions should display in the question panel,
+                                                                      and disable sending question channel.
+                Request:    POST    /student/singlelecture
+                                {
+                                    "idLecture":         INT,
+                                }                                 
+                Response:   
+                                {
+                                    "teacherFirstName":     STRING,
+                                    "teacherLastName":      STRING,
+                                    "lectureInfo":          {
+                                                                "idLecture":        INT,
+                                                                "idCourse":         INT,
+                                                                "lectureNum":       INT,       
+                                                                "topic":            STRING,
+                                                                "intro":            STRING,     (may not be required)
+                                                                "image":            STRING,     (the image path/id of the lecture, may need a default pic)
+                                                                "scheduleDate":     STRING,     (format: "yyyy-MM-dd" Here time zone problem)
+                                                                "startTime":        STRING,     (format: "hh:mm")
+                                                                "endTime":          STRING,     (format: "hh:mm")
+                                                                "createDate":       STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                                                "status":           STRING,         
+                                                                "url":              STRING
+                                                            }
+                                }
+
+
+In replay mode, get all answered questions:
+
 

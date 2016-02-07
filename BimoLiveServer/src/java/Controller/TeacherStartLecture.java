@@ -5,9 +5,10 @@
  */
 package Controller;
 
+import Model.CheckResult;
+import Model.IdModel;
 import Model.ReadRequestData;
-import Model.TeacherStartLectureRequestModel;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,11 +45,11 @@ public class TeacherStartLecture extends HttpServlet
     {
         String requeString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        TeacherStartLectureRequestModel startLectureRequestModel = gson.fromJson(requeString, TeacherStartLectureRequestModel.class);
-        if(startLectureRequestModel == null)
+        IdModel idModel = gson.fromJson(requeString, IdModel.class);
+        if(idModel == null)
             return;
-        int idUser = startLectureRequestModel.getIdUser();
-        int idLecture = startLectureRequestModel.getIdLecture();
+        int idUser = idModel.getIdUser();
+        int idLecture = idModel.getIdLecture();
 
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -58,11 +59,18 @@ public class TeacherStartLecture extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
-            Object resultObject = courseQuery.startLecture(idUser, idLecture);
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
+            CheckResult resultObject = courseQuery.startLecture(idUser, idLecture);
             if (resultObject != null)
             {
-                out.write(gson.toJson(resultObject));
+                if (resultObject.getResult() == 3 || resultObject.getResult() == 2)
+                    response.setStatus(403);
+                else
+                    out.write(gson.toJson(resultObject));
+            }
+            else
+            {
+                response.setStatus(500);
             }
         } 
         catch(Exception ex)

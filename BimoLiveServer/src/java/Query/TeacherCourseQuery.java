@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author Chonghuan
  */
-public class CourseQuery 
+public class TeacherCourseQuery 
 {
     private  String query = null;
     private  PreparedStatement stmt = null;
@@ -50,6 +50,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            categoryList = null;
         }
         finally
         {
@@ -166,6 +167,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            courses = null;
         }
         finally
         {
@@ -175,7 +177,7 @@ public class CourseQuery
         return courses;
     }
     
-    public CourseModel getSingleCourse(int idCourse)
+    public CourseModel getSingleCourse(int idUser, int idCourse)
     {
         Connection conn = Connector.Get();
         if (conn == null)
@@ -183,9 +185,10 @@ public class CourseQuery
         CourseModel course = new CourseModel();
         try
         {
-            query = "SELECT * FROM CourseInfo WHERE idCourse = ?";
+            query = "SELECT * FROM CourseInfo WHERE idCourse = ? and idUser = ?";
             stmt = conn.prepareStatement(query);
             stmt.setInt(1, idCourse);
+            stmt.setInt(2, idUser);
             rs = stmt.executeQuery();
             if(rs.next())
             {
@@ -205,6 +208,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            course = null;
         }
         finally
         {
@@ -249,6 +253,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            lectures = null;
         }
         finally
         {
@@ -258,7 +263,7 @@ public class CourseQuery
         return lectures;
     }
     
-    public LectureModel getSingleLecture(int idLecture)
+    public LectureModel getSingleLecture(int idUser, int idLecture)
     {
         Connection conn = Connector.Get();
         if (conn == null)
@@ -266,9 +271,11 @@ public class CourseQuery
         LectureModel lecture = new LectureModel();
         try
         {
-            query = "SELECT * FROM Lecture WHERE idLecture = ?";
+            query = "SELECT * FROM Lecture L, CourseInfo C \n" +
+                    "WHERE L.idLecture = ? and L.idCourse=C.idCourse and C.idUser = ?";
             stmt = conn.prepareStatement(query);
             stmt.setInt(1, idLecture);
+            stmt.setInt(2, idUser);
             rs = stmt.executeQuery();
             if(rs.next())
             {
@@ -289,6 +296,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            lecture = null;
         }
         finally
         {
@@ -321,7 +329,21 @@ public class CourseQuery
                     key = rs.getString("keyString");
             }
             else
-                return null;
+            {
+                result.setResult(2); // user doesnot exit.
+                return result;
+            }
+            query = "SELECT * FROM Lecture L, CourseInfo C \n" +
+                    "WHERE L.idLecture = ? and L.idCourse=C.idCourse and C.idUser = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idLecture);
+            stmt.setInt(2, idUser);
+            rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                result.setResult(3); // the teacher does not hold this lecture
+                return result;
+            }
             query = "UPDATE Lecture set status = ?, url = ?, startTime = ? WHERE idLecture = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, LIVESTATUS);
@@ -335,6 +357,7 @@ public class CourseQuery
         catch (Exception e)
         {
             e.printStackTrace();
+            result = null;
         }
         finally
         {

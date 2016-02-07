@@ -8,7 +8,7 @@ package Controller;
 import Model.CourseModel;
 import Model.ReadRequestData;
 import Model.IdModel;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -64,7 +64,7 @@ public class TeacherGetAllCourses extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
             courses = courseQuery.getCourses(idUser);
             if (courses != null)
             {

@@ -8,7 +8,7 @@ package Controller;
 import Model.IdModel;
 import Model.LectureModel;
 import Model.ReadRequestData;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -50,7 +50,7 @@ public class TeacherGetSingleLecture extends HttpServlet
             return;
         
         int idLecture = idModel.getIdLecture();
-        
+        int idUser = idModel.getIdUser();
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -59,12 +59,17 @@ public class TeacherGetSingleLecture extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
-            LectureModel lecture = courseQuery.getSingleLecture(idLecture);
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
+            LectureModel lecture = courseQuery.getSingleLecture(idUser, idLecture);
             if (lecture != null)
             {
-                out.write(gson.toJson(lecture));
+                if (lecture.getIdLecture()!=0)
+                    out.write(gson.toJson(lecture));
+                else
+                    response.setStatus(403);
             }
+            else
+                response.setStatus(500);
         } 
         catch(Exception ex)
         {

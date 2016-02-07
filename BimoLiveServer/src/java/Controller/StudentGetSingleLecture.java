@@ -5,10 +5,10 @@
  */
 package Controller;
 
-import Model.CourseModel;
 import Model.IdModel;
 import Model.ReadRequestData;
-import Query.TeacherCourseQuery;
+import Model.StudentGetLectureInfoModel;
+import Query.StudentCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "TeacherGetSingleCourse", urlPatterns = {"/teacher/singlecourse"})
-public class TeacherGetSingleCourse extends HttpServlet 
+@WebServlet(name = "StudentGetSingleLecture", urlPatterns = {"/student/singlelecture"})
+public class StudentGetSingleLecture extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -49,8 +49,7 @@ public class TeacherGetSingleCourse extends HttpServlet
         if (idModel == null)
             return;
         
-        int idCourse = idModel.getIdCourse();
-        int idUser = idModel.getIdUser();
+        int idLecture = idModel.getIdLecture();
         
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -60,12 +59,12 @@ public class TeacherGetSingleCourse extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
-            CourseModel course = courseQuery.getSingleCourse(idUser, idCourse);
-            if (course != null)
+            StudentCourseQuery courseQuery = new StudentCourseQuery();
+            StudentGetLectureInfoModel lecture = courseQuery.getSingleLecture(idLecture);
+            if (lecture != null)
             {
-                if(course.getIdUser() != 0)
-                    out.write(gson.toJson(course));
+                if(lecture.getTeacherFirstName()!= "")
+                    out.write(gson.toJson(lecture));
                 else
                     response.setStatus(403);
             }

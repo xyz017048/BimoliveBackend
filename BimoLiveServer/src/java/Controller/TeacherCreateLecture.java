@@ -8,7 +8,7 @@ package Controller;
 import Model.CheckResult;
 import Model.LectureModel;
 import Model.ReadRequestData;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -59,7 +59,7 @@ public class TeacherCreateLecture extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
             CheckResult result = courseQuery.addNewLecture(lecture);
             if (result != null)
             {

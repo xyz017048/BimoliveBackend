@@ -5,9 +5,10 @@
  */
 package Controller;
 
+import Model.IdModel;
 import Model.LectureModel;
 import Model.ReadRequestData;
-import Query.CourseQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -46,7 +47,7 @@ public class TeacherGetLectures extends HttpServlet
     {
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        CourseId course = gson.fromJson(requesString, CourseId.class);
+        IdModel course = gson.fromJson(requesString, IdModel.class);
         if (course == null)
             return;
         
@@ -62,7 +63,7 @@ public class TeacherGetLectures extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            CourseQuery courseQuery = new CourseQuery();
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
             lectures = courseQuery.getLectures(idCourse);
             if (lectures != null)
             {
@@ -88,18 +89,4 @@ public class TeacherGetLectures extends HttpServlet
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
-
-    private class CourseId
-    {
-        private int idCourse;
-        public CourseId(int idCourse)
-        {
-            this.idCourse = idCourse;
-        }
-
-        public int getIdCourse() 
-        {
-            return idCourse;
-        }
-    }
 }
