@@ -29,6 +29,9 @@ public class TeacherCourseQuery
     private final String WAITSTATUS = "wait";
     private final String LIVESTATUS = "live";
     private final String REPLAYSTATUS = "replay";
+    private final String FINISHSTATUS = "finish";
+    private final String DEFAULTCOURSEIMAGE= "https://s3-us-west-2.amazonaws.com/bimolive-pictures/course_pics/course_default_pic.png";
+    private final String DEFAULTLECTUREIMAGE= "https://s3-us-west-2.amazonaws.com/bimolive-pictures/course_pics/lecture_default_pic.png";
     
     public List<CourseCategoryModel> getCategory()
     {
@@ -77,7 +80,10 @@ public class TeacherCourseQuery
             stmt.setString(4, course.getName());
             stmt.setTimestamp(5,new Timestamp(System.currentTimeMillis()));
             stmt.setString(6,course.getIntro());
-            stmt.setString(7,course.getImage());
+            if(course.getImage().isEmpty())
+                stmt.setString(7, DEFAULTCOURSEIMAGE);
+            else
+                stmt.setString(7,course.getImage());
             stmt.setTimestamp(8,course.convertToTimestamp(course.getStartDate()));
             stmt.setTimestamp(9,course.convertToTimestamp(course.getEndDate()));
             stmt.setInt(10,course.getEndFlag());
@@ -111,7 +117,10 @@ public class TeacherCourseQuery
             stmt.setInt(2,lecture.getLectureNum());
             stmt.setString(3, lecture.getTopic());
             stmt.setString(4, lecture.getIntro());
-            stmt.setString(5,lecture.getImage());
+            if(lecture.getImage().isEmpty())
+                stmt.setString(5, DEFAULTLECTUREIMAGE);
+            else
+                stmt.setString(5,lecture.getImage());
             stmt.setString(6,WAITSTATUS);
             stmt.setString(7,"");
             stmt.setTimestamp(8,new Timestamp(System.currentTimeMillis()));
@@ -350,6 +359,48 @@ public class TeacherCourseQuery
             stmt.setString(2, key);
             stmt.setTime(3,new java.sql.Time((new java.util.Date()).getTime()));
             stmt.setInt(4,idLecture);
+            stmt.executeUpdate();
+            
+            result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
+    public CheckResult endLecture(int idUser, int idLecture)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "SELECT * FROM Lecture L, CourseInfo C \n" +
+                    "WHERE L.idLecture = ? and L.idCourse=C.idCourse and C.idUser = ? and L.status = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idLecture);
+            stmt.setInt(2, idUser);
+            stmt.setString(3, LIVESTATUS);
+            rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                result.setResult(2); // the teacher does not hold this live lecture
+                return result;
+            }
+            query = "UPDATE Lecture set status = ?, endTime = ? WHERE idLecture = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, FINISHSTATUS);
+            stmt.setTime(2,new java.sql.Time((new java.util.Date()).getTime()));
+            stmt.setInt(3,idLecture);
             stmt.executeUpdate();
             
             result.setResult(1); 

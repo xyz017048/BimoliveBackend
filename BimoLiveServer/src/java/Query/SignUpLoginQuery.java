@@ -23,6 +23,7 @@ public class SignUpLoginQuery
     private String query = null;
     private PreparedStatement stmt = null;
     private ResultSet rs = null;
+    private final String DEFAULTPROFILEPATH= "https://s3-us-west-2.amazonaws.com/bimolive-pictures/profile_pics/default_profile_pic.PNG";
     
     public void userRegister(RegisterRequestModel user)
     {
@@ -32,7 +33,7 @@ public class SignUpLoginQuery
         
         try
         {
-            query = "INSERT INTO UserBasic (email, username, password,roleLevel,lastLogin,regisDate,introWords) VALUES(?,?,?,?,?,?,?)";
+            query = "INSERT INTO UserBasic (email, username, password,roleLevel,lastLogin,regisDate,introWords, profile) VALUES(?,?,?,?,?,?,?,?)";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, user.getEmail());
             stmt.setString(2,user.getUsername());
@@ -41,6 +42,7 @@ public class SignUpLoginQuery
             stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
             stmt.setTimestamp(6, new Timestamp(System.currentTimeMillis()));
             stmt.setString(7, "");
+            stmt.setString(8, DEFAULTPROFILEPATH);
             stmt.executeUpdate();
         }
         catch (Exception e)

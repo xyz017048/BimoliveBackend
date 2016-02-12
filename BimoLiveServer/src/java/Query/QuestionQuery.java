@@ -98,7 +98,7 @@ public class QuestionQuery
         return result;
     }
     
-    public List<GetQuestionResponseModel> getQuestions(int roleLevel, int idLecture, int interval)
+    public List<GetQuestionResponseModel> getQuestions(int roleLevel, int idLecture, int idQuestion)
     {
         List<GetQuestionResponseModel> questions = new ArrayList<GetQuestionResponseModel>();
         Connection conn = Connector.Get();
@@ -107,7 +107,7 @@ public class QuestionQuery
         
         try
         {
-            if(roleLevel == 1 && interval == 0) //student, all
+            if(roleLevel == 1 && idQuestion == -1) //student, all
             {
                 query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by changeTime";
                 stmt = conn.prepareStatement(query);
@@ -115,7 +115,7 @@ public class QuestionQuery
                 stmt.setString(2, ANSWERSTRING);
 //                stmt.setString(3, SOLVESTRING);
             }
-            else if (roleLevel == 2 && interval == 0) //teacher, all
+            else if (roleLevel == 2 && idQuestion == -1) //teacher, all
             {
                 query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by sendTime";
                 stmt = conn.prepareStatement(query);
@@ -125,26 +125,22 @@ public class QuestionQuery
             
             else if (roleLevel == 1)
             {
-                Timestamp time = new Timestamp(System.currentTimeMillis()-interval*1000);
                 query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and (status = ? and changeTime > ? )"
+                        "WHERE idLecture = ? and status = ? and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)  "
                         + "order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,ANSWERSTRING);
-                stmt.setTimestamp(3, time);
-//                stmt.setString(4, SOLVESTRING);
-//                stmt.setTimestamp(5, time);
+                stmt.setInt(3,idQuestion);
             }
             else if (roleLevel == 2)
             {
-                Timestamp time = new Timestamp(System.currentTimeMillis()-interval*1000);
                 query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and status = ? and sendTime > ?";
+                        "WHERE idLecture = ? and status = ? and idQuestion > ?";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,NEWSTATUS);
-                stmt.setTimestamp(3, time);
+                stmt.setInt(3, idQuestion);
             }
             rs = stmt.executeQuery();
             while (rs.next())

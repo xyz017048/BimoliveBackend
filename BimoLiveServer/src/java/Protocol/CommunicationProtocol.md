@@ -110,9 +110,9 @@ Question ask and answer Part:
                                 {
                                     "roleLevel":        INT, (1:student; 2:teacher)
                                     "idLecture":        INT,
-                                    "interval":         INT (seconds, if interval == 0, get all questions with 'answer' status for student or 'new' status for teacher
+                                    "idQuestion":       INT (if idQuestion == -1, get all questions with 'answer' status for student or 'new' status for teacher
 												from this lecture;
-										else, get questions between current time and current time - interval)
+										else, get questions after this idQuestion)
                                 }
                 Response:   it is possible to receive empty response.
                         note: for teacher, the questions are order by sendTime
@@ -132,7 +132,7 @@ Question ask and answer Part:
                 Request: POST   /teacher/questionaction
                                 {
                                     "idQuestion":       INT,
-                                    "status":           STRING (can be "answer", "ban","kick")
+                                    "status":           STRING (can be "delete","answer", "ban","kick")
                                 }
                 Response:
                                 {
@@ -249,7 +249,7 @@ Teacher create/update/get [single course/ all courses/ single lecture/all lectur
                                     ...
                                 ]
 
-        Get a single Lecture:
+        Get a single Lecture: a lecture can has status = "wait"/"live"/"finish"/"replay"
                 Request:    POST    /teacher/singlelecture
                                 {
                                     "idUser":           INT,
@@ -296,10 +296,23 @@ Teacher start a lecture:
                                 "idUser":       INT,
                                 "idLecture":    INT
                             }
-            Response:
+            Response:   May receive 403 error, if the teacher don't hold this lecture.
                             {
                                 "result":       INT     (result=0 fail; reuslt=1 success)
                             }
+
+Teacher ends a live lecture:
+            Request: POST   /teacher/endlecture
+                            {
+                                "idUser":       INT,
+                                "idLecture":    INT
+                            }
+            Response:   May receive 403 error, if the teacher don't hold this lecture
+                            or this lecture is not live.
+                            {
+                                "result":       INT     (result=0 fail; reuslt=1 success)
+                            }
+
 
 Teacher upload a video: (change status = "replay", url = where in amazon cloud)
 

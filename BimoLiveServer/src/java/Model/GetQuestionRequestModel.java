@@ -13,13 +13,13 @@ public class GetQuestionRequestModel
 {
     private int roleLevel;
     private int idLecture;
-    private int interval;
+    private int idQuestion;
 
-    public GetQuestionRequestModel(int roleLevel, int idLecture, int interval)
+    public GetQuestionRequestModel(int roleLevel, int idLecture, int idQuestion)
     {
         this.roleLevel = roleLevel;
         this.idLecture = idLecture;
-        this.interval = interval;
+        this.idQuestion = idQuestion;
     }
 
     public int getIdLecture() 
@@ -27,9 +27,9 @@ public class GetQuestionRequestModel
         return idLecture;
     }
 
-    public int getInterval() 
+    public int getIdQuestion() 
     {
-        return interval;
+        return idQuestion;
     }
 
     public int getRoleLevel() 
