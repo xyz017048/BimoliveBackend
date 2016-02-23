@@ -9,12 +9,13 @@ package Model;
  *
  * @author Chonghuan
  */
-public class ValidLoginResponse 
+public class UserInfo 
 {
     private int result;
     private int idUser;
     private String email;
     private String username;
+    private String password;
     private int roleLevel;
     private String firstName;
     private String lastName;
@@ -22,13 +23,17 @@ public class ValidLoginResponse
     private String profile;
     private String introWords;
     private String regisDate;
+    private String resume;
+    private String company;
+    private String jobTitle;
     
-    public ValidLoginResponse()
+    public UserInfo()
     {
         result = 0;
         idUser = 0; 
         email = "";
         username = "";
+        password = "";
         roleLevel = 0;
         firstName = "";
         lastName = "";
@@ -36,6 +41,9 @@ public class ValidLoginResponse
         profile = "";
         introWords = "";
         regisDate = "";
+        resume = "";
+        company = "";
+        jobTitle = "";
     }
 
     public int getResult() 
@@ -125,5 +133,42 @@ public class ValidLoginResponse
 
     public void setRegisDate(String regisDate) {
         this.regisDate = regisDate;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getResume() {
+        return resume;
+    }
+
+    public void setResume(String resume) {
+        this.resume = resume;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle) {
+        this.jobTitle = jobTitle;
+    }
+    
+    public void encrypt()
+    {
+        this.password = PasswordCrypto.getEncrypt(password);
     }
 }

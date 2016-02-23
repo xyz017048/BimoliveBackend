@@ -72,7 +72,7 @@ public class TeacherCourseQuery
         CheckResult result = new CheckResult();
         try
         {
-            query = "INSERT INTO CourseInfo (category,idUser, levelNumber,name, createDate,intro,image,startDate, endDate, endFlag) VALUES(?,?,?,?,?,?,?,?,?,?)";
+            query = "INSERT INTO CourseInfo (category,idUser, levelNumber,name, createDate,intro,image,startDate, endDate, endFlag, permissionCode) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
             stmt = conn.prepareStatement(query);
             stmt.setString(1,course.getCategory());
             stmt.setInt(2,course.getIdUser());
@@ -87,6 +87,7 @@ public class TeacherCourseQuery
             stmt.setTimestamp(8,course.convertToTimestamp(course.getStartDate()));
             stmt.setTimestamp(9,course.convertToTimestamp(course.getEndDate()));
             stmt.setInt(10,course.getEndFlag());
+            stmt.setString(11, course.getPermissionCode());
             stmt.executeUpdate();
             
             result.setResult(1); 
@@ -102,6 +103,47 @@ public class TeacherCourseQuery
         }
         return result;
     }
+    
+    
+    public CheckResult updateCourse(CourseModel course)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "UPDATE CourseInfo set category=?,levelNumber=?,name=?,intro=?,image=?,startDate=?, endDate=?, endFlag=?, permissionCode=? where idCourse = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1,course.getCategory());
+            stmt.setInt(2, course.getLevelNumber());
+            stmt.setString(3, course.getName());
+            stmt.setString(4,course.getIntro());
+            if(course.getImage().isEmpty())
+                stmt.setString(5, DEFAULTCOURSEIMAGE);
+            else
+                stmt.setString(5,course.getImage());
+            stmt.setTimestamp(6,course.convertToTimestamp(course.getStartDate()));
+            stmt.setTimestamp(7,course.convertToTimestamp(course.getEndDate()));
+            stmt.setInt(8,course.getEndFlag());
+            stmt.setString(9, course.getPermissionCode());
+            stmt.setInt(10, course.getIdCourse());
+            stmt.executeUpdate();
+            
+            result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
     
     public CheckResult addNewLecture(LectureModel lecture)
     {
@@ -143,6 +185,43 @@ public class TeacherCourseQuery
         return result;
     }
     
+    public CheckResult updateLecture(LectureModel lecture)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "UPDATE Lecture set topic=?,intro=?,image=?,scheduleDate=?, startTime=?, endTime=? where idLecture=?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, lecture.getTopic());
+            stmt.setString(2, lecture.getIntro());
+            if(lecture.getImage().isEmpty())
+                stmt.setString(3, DEFAULTLECTUREIMAGE);
+            else
+                stmt.setString(3,lecture.getImage());
+            stmt.setDate(4,lecture.getSqlDate(lecture.getScheduleDate()));
+            stmt.setTime(5,lecture.getSqlTime(lecture.getStartTime()));
+            stmt.setTime(6,lecture.getSqlTime(lecture.getEndTime()));
+            stmt.setInt(7, lecture.getIdLecture());
+            stmt.executeUpdate();
+            
+            result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
+    
     public List<CourseModel> getCourses(int idUser)
     {
         List<CourseModel> courses = new ArrayList<CourseModel>();
@@ -170,6 +249,7 @@ public class TeacherCourseQuery
                 course.setStartDate(rs.getString("startDate").substring(0,19));
                 course.setEndDate(rs.getString("endDate").substring(0,19));
                 course.setEndFlag(rs.getInt("endFlag"));
+                course.setPermissionCode(rs.getString("permissionCode"));
                 courses.add(course);
             }
         }
@@ -212,6 +292,7 @@ public class TeacherCourseQuery
                 course.setStartDate(rs.getString("startDate").substring(0,19));
                 course.setEndDate(rs.getString("endDate").substring(0,19));
                 course.setEndFlag(rs.getInt("endFlag"));
+                course.setPermissionCode(rs.getString("permissionCode"));
             }
         }
         catch (Exception e)

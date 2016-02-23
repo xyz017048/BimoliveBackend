@@ -7,11 +7,13 @@ package Controller;
 
 import Model.IdModel;
 import Model.ReadRequestData;
-import Model.StudentGetLectureInfoModel;
+import Model.StudentGetCourseInfoModel;
 import Query.StudentCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "StudentGetSingleLecture", urlPatterns = {"/student/singlelecture"})
-public class StudentGetSingleLecture extends HttpServlet 
+@WebServlet(name = "StudentGetAllFollowedCourses", urlPatterns = {"/student/followedcourses"})
+public class StudentGetAllFollowedCourses extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -49,8 +51,9 @@ public class StudentGetSingleLecture extends HttpServlet
         if (idModel == null)
             return;
         
-        int idLecture = idModel.getIdLecture();
         int idUser = idModel.getIdUser();
+        
+        List<StudentGetCourseInfoModel> courses = new ArrayList<StudentGetCourseInfoModel>();
         
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -61,16 +64,11 @@ public class StudentGetSingleLecture extends HttpServlet
         try 
         {
             StudentCourseQuery courseQuery = new StudentCourseQuery();
-            StudentGetLectureInfoModel lecture = courseQuery.getSingleLecture(idUser,idLecture);
-            if (lecture != null)
+            courses = courseQuery.getFollowedCourses(idUser);
+            if (courses != null)
             {
-                if(lecture.getLectureModel().getIdLecture() != 0)
-                    out.write(gson.toJson(lecture));
-                else
-                    response.setStatus(403);
+                out.write(gson.toJson(courses));
             }
-            else
-                response.setStatus(500);
         } 
         catch(Exception ex)
         {

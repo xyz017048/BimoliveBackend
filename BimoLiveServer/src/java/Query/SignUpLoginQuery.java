@@ -8,7 +8,7 @@ package Query;
 import DBConnector.Connector;
 import Model.CheckResult;
 import Model.RegisterRequestModel;
-import Model.ValidLoginResponse;
+import Model.UserInfo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -119,7 +119,7 @@ public class SignUpLoginQuery
     public Object responseLogin(String email, String password)
     {
         int result = 0;
-        ValidLoginResponse loginResponse = new ValidLoginResponse();
+        UserInfo loginResponse = new UserInfo();
         CheckResult returnResult = new CheckResult(result);
         Connection conn = Connector.Get();
         if (conn == null)
@@ -170,5 +170,41 @@ public class SignUpLoginQuery
             return loginResponse;
         }
         return returnResult;
+    }
+    
+    public CheckResult applyToBeTeacher(UserInfo user)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "UPDATE UserBasic set firstName = ?, lastName = ?, profile = ?, introWords = ?, resume = ?, company = ?, "
+                    + "jobTitle = ?, applyStatus = ?, applyDate = ? WHERE idUser = ? ";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, user.getFirstName());
+            stmt.setString(2, user.getLastName());
+            stmt.setString(3, user.getProfile());
+            stmt.setString(4, user.getIntroWords());
+            stmt.setString(5, user.getResume());
+            stmt.setString(6, user.getCompany());
+            stmt.setString(7, user.getJobTitle());
+            stmt.setString(8, "new");
+            stmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+            stmt.setInt(10, user.getIdUser());
+            stmt.executeUpdate();
+            result.setResult(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }  
+        return result;
     }
 }

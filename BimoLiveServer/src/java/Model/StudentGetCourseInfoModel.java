@@ -9,21 +9,20 @@ package Model;
  *
  * @author Chonghuan
  */
-public class StudentGetLectureInfoModel 
+public class StudentGetCourseInfoModel 
 {
     private String teacherFirstName;
     private String teacherLastName;
-    private LectureModel lectureModel;
+    private CourseModel courseModel;
     private int followCourse;
-    private int followTeacher;
+//    private int followTeacher;
     
-    public StudentGetLectureInfoModel()
+    public StudentGetCourseInfoModel()
     {
         this.teacherFirstName = "";
         this.teacherLastName = "";
-        this.lectureModel = new LectureModel();
+        this.courseModel = new CourseModel();
         this.followCourse = 0;
-        this.followTeacher = 0;
     }
 
     public String getTeacherFirstName() {
@@ -42,12 +41,12 @@ public class StudentGetLectureInfoModel
         this.teacherLastName = teacherLastName;
     }
 
-    public LectureModel getLectureModel() {
-        return lectureModel;
+    public CourseModel getCourseModel() {
+        return courseModel;
     }
 
-    public void setLectureModel(LectureModel lectureModel) {
-        this.lectureModel = lectureModel;
+    public void setCourseModel(CourseModel courseModel) {
+        this.courseModel = courseModel;
     }
 
     public int getFollowCourse() {
@@ -57,12 +56,5 @@ public class StudentGetLectureInfoModel
     public void setFollowCourse(int followCourse) {
         this.followCourse = followCourse;
     }
-
-    public int getFollowTeacher() {
-        return followTeacher;
-    }
-
-    public void setFollowTeacher(int followTeacher) {
-        this.followTeacher = followTeacher;
-    }
+    
 }

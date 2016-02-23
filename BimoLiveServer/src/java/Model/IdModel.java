@@ -14,12 +14,14 @@ public class IdModel
     private int idUser;
     private int idCourse;
     private int idLecture;
+    private int idTeacher;
         
     public IdModel()
     {
         this.idUser = 0;
         this.idCourse = 0;
         this.idLecture = 0;
+        this.idTeacher = 0;
     }
 
     public int getIdUser() {
@@ -45,5 +47,12 @@ public class IdModel
     public void setIdLecture(int idLecture) {
         this.idLecture = idLecture;
     }
-    
+
+    public int getIdTeacher() {
+        return idTeacher;
+    }
+
+    public void setIdTeacher(int idTeacher) {
+        this.idTeacher = idTeacher;
+    }
 }

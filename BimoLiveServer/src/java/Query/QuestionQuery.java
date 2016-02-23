@@ -28,7 +28,8 @@ public class QuestionQuery
     private  ResultSet rs = null;
     private final String NEWSTATUS = "new";
     private final String ANSWERSTRING = "answer";
-//    private final String SOLVESTRING = "solve";
+    private final String READSTAUTS = "read";
+    private final String BANSTRING = "ban";
     
     public CheckResult saveQuestion(SendQuestionRequestModel question)
     {
@@ -109,48 +110,62 @@ public class QuestionQuery
         {
             if(roleLevel == 1 && idQuestion == -1) //student, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by changeTime";
+                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
+                        + "FROM QuestionQueue Q, Lecture L "
+                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? ) order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, ANSWERSTRING);
-//                stmt.setString(3, SOLVESTRING);
+                stmt.setString(3, BANSTRING);
             }
             else if (roleLevel == 2 && idQuestion == -1) //teacher, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, status FROM QuestionQueue WHERE idLecture = ? and status = ? order by sendTime";
+                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
+                        + "FROM QuestionQueue Q, Lecture L "
+                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status= ?) order by sendTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, NEWSTATUS);
+                stmt.setString(3, ANSWERSTRING);
+                stmt.setString(4, READSTAUTS);
             }
             
-            else if (roleLevel == 1)
+            else if (roleLevel == 1) //student, idQuestion
             {
-                query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and status = ? and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)  "
+                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status\n"
+                        + "FROM QuestionQueue Q, Lecture L\n" +
+                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)\n"
                         + "order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,ANSWERSTRING);
-                stmt.setInt(3,idQuestion);
+                stmt.setString(3,BANSTRING);
+                stmt.setInt(4,idQuestion);
             }
-            else if (roleLevel == 2)
+            else if (roleLevel == 2) // teacher, idQuestion
             {
-                query = "SELECT idQuestion, username, content, sendTime,status FROM QuestionQueue " +
-                        "WHERE idLecture = ? and status = ? and idQuestion > ?";
+                query = "SELECT idQuestion, username, content, sendTime,Q.status, L.status\n" +
+                        "FROM QuestionQueue Q, Lecture L\n" +
+                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and ((Q.status = ? and idQuestion > ?) or \n" +
+                        "( (Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)))";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,NEWSTATUS);
                 stmt.setInt(3, idQuestion);
+                stmt.setString(4,READSTAUTS);
+                stmt.setString(5, ANSWERSTRING);
+                stmt.setInt(6, idQuestion);
             }
             rs = stmt.executeQuery();
             while (rs.next())
             {
                 GetQuestionResponseModel question = new GetQuestionResponseModel();
+                question.setLectureStatus(rs.getString("L.status"));
                 question.setIdQuestion(rs.getInt("idQuestion"));
                 question.setUsername(rs.getString("username"));
                 question.setSendTime(rs.getString("sendTime").substring(0,19));
                 question.setContent(rs.getString("content"));
-                question.setStatus(rs.getString("status"));
+                question.setStatus(rs.getString("Q.status"));
                 questions.add(question);
             }
         }

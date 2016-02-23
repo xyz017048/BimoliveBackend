@@ -5,10 +5,10 @@
  */
 package Controller;
 
-import Model.IdModel;
+import Model.CheckResult;
 import Model.ReadRequestData;
-import Model.StudentGetLectureInfoModel;
-import Query.StudentCourseQuery;
+import Model.UserInfo;
+import Query.SignUpLoginQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "StudentGetSingleLecture", urlPatterns = {"/student/singlelecture"})
-public class StudentGetSingleLecture extends HttpServlet 
+@WebServlet(name = "ApplyToBeTeacher", urlPatterns = {"/teacherapply"})
+public class ApplyToBeTeacher extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,12 +45,10 @@ public class StudentGetSingleLecture extends HttpServlet
     {
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        IdModel idModel = gson.fromJson(requesString, IdModel.class);
-        if (idModel == null)
-            return;
+        UserInfo userInfo = gson.fromJson(requesString, UserInfo.class);
         
-        int idLecture = idModel.getIdLecture();
-        int idUser = idModel.getIdUser();
+        if (userInfo == null)
+            return;
         
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -60,17 +58,12 @@ public class StudentGetSingleLecture extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            StudentCourseQuery courseQuery = new StudentCourseQuery();
-            StudentGetLectureInfoModel lecture = courseQuery.getSingleLecture(idUser,idLecture);
-            if (lecture != null)
+            SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
+            CheckResult resultObject = loginQueryResult.applyToBeTeacher(userInfo);
+            if (resultObject != null)
             {
-                if(lecture.getLectureModel().getIdLecture() != 0)
-                    out.write(gson.toJson(lecture));
-                else
-                    response.setStatus(403);
+                out.write(gson.toJson(resultObject));
             }
-            else
-                response.setStatus(500);
         } 
         catch(Exception ex)
         {

@@ -11,6 +11,7 @@ package Model;
  */
 public class GetQuestionResponseModel 
 {
+    private String lectureStatus;
     private int idQuestion;
     private String username;
     private String content;
@@ -19,6 +20,7 @@ public class GetQuestionResponseModel
     
     public GetQuestionResponseModel()
     {
+        this.lectureStatus = "";
         this.idQuestion = 0;
         this.username = "";
         this.content = "";
@@ -74,6 +76,14 @@ public class GetQuestionResponseModel
     public void setStatus(String status) 
     {
         this.status = status;
+    }
+
+    public String getLectureStatus() {
+        return lectureStatus;
+    }
+
+    public void setLectureStatus(String lectureStatus) {
+        this.lectureStatus = lectureStatus;
     }
     
 }

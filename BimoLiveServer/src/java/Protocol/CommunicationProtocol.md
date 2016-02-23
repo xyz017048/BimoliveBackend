@@ -49,7 +49,7 @@ Registration:
 				"regisDate":            STRING
 			}
 
-Login:  (teacher: admin@gmail.com, admin;  student: student@gmail.com,  student)
+Login:  (teacher: teacher@gmail.com, teacher;  student: student@gmail.com,  student)
 	Request: POST   /login
 			{
 				"email":                STRING,
@@ -74,9 +74,6 @@ Login:  (teacher: admin@gmail.com, admin;  student: student@gmail.com,  student)
 				"introWords":           STRING,
 				"regisDate":            STRING
 			}
-
-*********************************   Apply to be a teacher   **********************************
-account setting, apply to be a teacher (change key)
 
 Teacher generate a key:
                 Request: POST   /teacher/generatekey
@@ -110,7 +107,7 @@ Question ask and answer Part:
                                 {
                                     "roleLevel":        INT, (1:student; 2:teacher)
                                     "idLecture":        INT,
-                                    "idQuestion":       INT (if idQuestion == -1, get all questions with 'answer' status for student or 'new' status for teacher
+                                    "idQuestion":       INT (if idQuestion == -1, get all questions with 'answer/ban' status for student or 'new/read/answer' status for teacher
 												from this lecture;
 										else, get questions after this idQuestion)
                                 }
@@ -118,21 +115,22 @@ Question ask and answer Part:
                         note: for teacher, the questions are order by sendTime
                               for student, the questions are order by changeTime, which means the answering time.
                                 [
-					{
-						"idQuestion":	INT,
-						"username": 	STRING,
-						"content" : 	STRING,
-                                                "status":       STRING,
-						"sendTime":	STRING (format: yyyy-MM-dd hh:mm:ss)
-					},
-					...
-				]
-                         
+                                    {
+                                        "lectureStatus":    STRING,  (live,replay,finish)
+                                        "idQuestion":       INT,
+                                        "username":         STRING,
+                                        "content" :         STRING,
+                                        "status":           STRING,
+                                        "sendTime":         STRING (format: yyyy-MM-dd hh:mm:ss)
+                                    },
+                                    ...
+                                ]
+                                
         Teacher makes an action on a question: 
                 Request: POST   /teacher/questionaction
                                 {
                                     "idQuestion":       INT,
-                                    "status":           STRING (can be "delete","answer", "ban","kick")
+                                    "status":           STRING (can be "read","delete","answer", "ban")
                                 }
                 Response:
                                 {
@@ -162,18 +160,19 @@ Teacher create/update/get [single course/ all courses/ single lecture/all lectur
                 Response：      may be an empty list, order by "createDate" desc
                                 [
                                     {
-                                        "idCourse":     INT,
-                                        "idUser":       INT,
-                                        "category":     STRING,
-                                        "levelNumber":  INT,
-                                        "name":         STRING,
-                                        "intro":        STRING,
-                                        "image":        STRING,     (the image path/id of the course)
-                                        "createDate":   STRING,     (format: "yyyy-MM-dd hh:mm:ss" )
-                                        "startDate":    STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
-                                        "endDate":      STRING,     (format: "yyyy-MM-dd hh:mm:ss")
-                                        "endFlag":      INT         (endFlag = 0, no endDate, make endDate same as startDate;
-                                                                 endFlag = 1, real endDate)
+                                        "idCourse":         INT,
+                                        "idUser":           INT,
+                                        "category":         STRING,
+                                        "levelNumber":      INT,
+                                        "name":             STRING,
+                                        "intro":            STRING,
+                                        "image":            STRING,     (the image path/id of the course)
+                                        "createDate":       STRING,     (format: "yyyy-MM-dd hh:mm:ss" )
+                                        "startDate":        STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
+                                        "endDate":          STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                        "endFlag":          INT,         (endFlag = 0, no endDate, make endDate same as startDate;
+                                                                        endFlag = 1, real endDate)
+                                        "permissionCode":   STRING
                                     },
                                     ...
                                 ]
@@ -188,41 +187,63 @@ Teacher create/update/get [single course/ all courses/ single lecture/all lectur
 
                 Response：      
                                 {
-                                    "idCourse":     INT,
-                                    "idUser":       INT,
-                                    "category":     STRING,
-                                    "levelNumber":  INT,
-                                    "name":         STRING,
-                                    "intro":        STRING,
-                                    "image":        STRING,     (the image path/id of the course)
-                                    "createDate":   STRING,     (format: "yyyy-MM-dd hh:mm:ss" )
-                                    "startDate":    STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
-                                    "endDate":      STRING,     (format: "yyyy-MM-dd hh:mm:ss")
-                                    "endFlag":      INT         (endFlag = 0, no endDate, make endDate same as startDate;
-                                                             endFlag = 1, real endDate)
+                                    "idCourse":         INT,
+                                    "idUser":           INT,
+                                    "category":         STRING,
+                                    "levelNumber":      INT,
+                                    "name":             STRING,
+                                    "intro":            STRING,
+                                    "image":            STRING,     (the image path/id of the course)
+                                    "createDate":       STRING,     (format: "yyyy-MM-dd hh:mm:ss" )
+                                    "startDate":        STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
+                                    "endDate":          STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                    "endFlag":          INT,         (endFlag = 0, no endDate, make endDate same as startDate;
+                                                                        endFlag = 1, real endDate)
+                                    "permissionCode":   STRING
                                 }
                                 
 
         Create a course:
                 Request: POST   /teacher/createcourse
                                 {
-                                    "idUser":       INT,
-                                    "category":     STRING,
-                                    "levelNumber":  INT,
-                                    "name":         STRING,
-                                    "intro":        STRING,
-                                    "image":        STRING,     (the image path/id of the course)
-                                    "startDate":    STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
-                                    "endDate":      STRING,     (format: "yyyy-MM-dd hh:mm:ss")
-                                    "endFlag":      INT         (endFlag = 0, no endDate, make endDate same as startDate;
-                                                                 endFlag = 1, real endDate)
+                                    "idUser":           INT,
+                                    "category":         STRING,
+                                    "levelNumber":      INT,
+                                    "name":             STRING,
+                                    "intro":            STRING,
+                                    "image":            STRING,     (the image path/id of the course)
+                                    "startDate":        STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
+                                    "endDate":          STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                    "endFlag":          INT,         (endFlag = 0, no endDate, make endDate same as startDate;
+                                                                    endFlag = 1, real endDate)
+                                    "permissionCode":   STRING
                                 }
                 Response:
                                 {
                                     "result":           INT (result=0 fail; reuslt=1 success)
                                 }
 
+
         Teacher update a course:
+                Request: POST   /teacher/updatecourse
+                                {
+                                    "idCourse":         INT,
+                                    "category":         STRING,
+                                    "levelNumber":      INT,
+                                    "name":             STRING,
+                                    "intro":            STRING,
+                                    "image":            STRING,     (the image path/id of the course)
+                                    "startDate":        STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
+                                    "endDate":          STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                    "endFlag":          INT,         (endFlag = 0, no endDate, make endDate same as startDate;
+                                                                    endFlag = 1, real endDate)
+                                    "permissionCode":   STRING
+                                }
+                Response:
+                                {
+                                    "result":           INT (result=0 fail; reuslt=1 success)
+                                }
+
 
         Get all lectures of one course: when you click on one course, you will request all lectures of this course.
                 Request:    POST    /teacher/lectures
@@ -288,7 +309,23 @@ Teacher create/update/get [single course/ all courses/ single lecture/all lectur
                                 {
                                     "result":           INT (result=0 fail; reuslt=1 success)
                                 }
+
+
         Teacher update a lecture:
+                Request: POST   /teacher/updatelecture
+                                {
+                                    "idLecture":        INT,
+                                    "topic":            STRING,
+                                    "intro":            STRING,     (may not be required)
+                                    "image":            STRING,     (the image path/id of the lecture, may need a default pic)
+                                    "scheduleDate":     STRING,     (format: "yyyy-MM-dd" Here time zone problem)
+                                    "startTime":        STRING,     (format: "hh:mm")
+                                    "endTime":          STRING      (format: "hh:mm")
+                                }
+                Response:
+                                {
+                                    "result":           INT (result=0 fail; reuslt=1 success)
+                                }
 
 Teacher start a lecture:
             Request: POST   /teacher/startlecture
@@ -359,13 +396,16 @@ Get all replay videos:
 
 ************************    Student get course/lecture info ***************************
 
-Student Get a single Lecture:         NOTE: if 'status' == 'wait', student can only see the info of this lecture.
-                                            if 'status' == 'live', show the live video to the student, and can send a question if login
-                                            if 'status' == 'replay', show the video to the student, all answered questions should display in the question panel,
+Student Get a single Lecture:         NOTE: if 'status' == 'wait', student can only see the info of this lecture. display scheduled time.
+                                            if 'status' == 'live', display detail info, has a button says 'view', then show the live video to the student, and can send a question if login
+                                            if 'status' == 'replay', display detail info, the button says 'replay',then show the video to the student, all answered questions should display in the question panel,
                                                                       and disable sending question channel.
+                                            if 'status' == 'finish', display detail info, imply this is not available right now.
+                
                 Request:    POST    /student/singlelecture
                                 {
-                                    "idLecture":         INT,
+                                    "idUser":           INT,
+                                    "idLecture":        INT
                                 }                                 
                 Response:   
                                 {
@@ -384,10 +424,178 @@ Student Get a single Lecture:         NOTE: if 'status' == 'wait', student can o
                                                                 "createDate":       STRING,     (format: "yyyy-MM-dd hh:mm:ss")
                                                                 "status":           STRING,         
                                                                 "url":              STRING
-                                                            }
+                                                            },
+                                    "followCourse":         INT (0/1),
+                                    "followTeacher":        INT (0/1)
                                 }
 
 
+Student get all my followed courses:
+                Request:    POST    /student/followedcourses
+                                {
+                                    "idUser":           INT
+                                }
+                              
+                Response:   
+                                [
+                                    {
+                                        "teacherFirstName":     STRING,
+                                        "teacherLastName":      STRING,
+                                        "courseInfo":           {
+                                                                    "idCourse":         INT,
+                                                                    "category":         STRING,
+                                                                    "levelNumber":      INT,
+                                                                    "name":             STRING,
+                                                                    "intro":            STRING,
+                                                                    "image":            STRING,     (the image path/id of the course)
+                                                                    "createDate":       STRING,     (format: "yyyy-MM-dd hh:mm:ss" )
+                                                                    "startDate":        STRING,     (format: "yyyy-MM-dd hh:mm:ss" Here time zone problem)
+                                                                    "endDate":          STRING,     (format: "yyyy-MM-dd hh:mm:ss")
+                                                                    "endFlag":          INT,         (endFlag = 0, no endDate, make endDate same as startDate;
+                                                                                                        endFlag = 1, real endDate)
+                                                                },
+                                        "followCourse":         INT (0/1)
+                                    },
+                                    ...
+                                    ...
+                                ]
+
+
+Student get all my followed teachers:
+                Request:    POST    /student/followedteachers
+                                {
+                                    "idUser":           INT
+                                }
+                                
+                Response:   
+                                {
+                                    
+                                }
+                            
+
 In replay mode, get all answered questions:
 
+**********************************Student follow/unfollow course/teacher *********************************
+Student follow a course:    if the course has already been followed, make the icon to be "unfollow".
+ 
+                Request:    POST   /student/followcourse
+                                {
+                                    "idUser":       INT,
+                                    "idCourse":     INT,  //  follow at course page, idCourse is valid, make "idLecture = -1"
+                                    "idLecure":     INT   //  follow at lecture page, idLecture is valid, make "idCourse = -1"
+                                                           // if both idCourse and idLecture are not -1, consider idCourse first
+                                }
+
+                Response:   
+                                {
+                                    "result":       INT     (result=0 fail; reuslt=1 success)
+                                }
+
+
+Student follow a teacher:   make the icon to be "unfollow" when student has already followed the teacher.
+ 
+                Request:    POST   /student/followteacher
+                                {
+                                    "idUser":       INT,
+                                    "idCourse":     INT,  //  follow at course page, idCourse is valid, make "idLecture & idTeacher = -1"
+                                    "idLecure":     INT,  //  follow at lecture page, idLecture is valid, make "idCourse & idTeacher = -1"
+                                    "idTeacher":    INT    // follow at teahcer info page, idTeacher is valid, make "idCourse & idLecture = -1"
+                                                            // priority idTeacher > idCourse > idLecture
+                                }
+
+                Response:   
+                                {
+                                    "result":       INT     (result=0 fail; reuslt=1 success)
+                                }
+  
+Student unfollow a course:
+ 
+                Request:    POST   /student/unfollowcourse
+                                {
+                                    "idUser":       INT,
+                                    "idCourse":     INT,  //  unfollow at course page, idCourse is valid, make "idLecture = -1"
+                                    "idLecure":     INT   //  unfollow at lecture page, idLecture is valid, make "idCourse = -1"
+                                                           // if both idCourse and idLecture are not -1, consider idCourse first
+                                }
+
+                Response:   
+                                {
+                                    "result":       INT     (result=0 fail; reuslt=1 success)
+                                }
+
+
+Student unfollow a teacher:
+ 
+                Request:    POST   /student/unfollowteacher
+                                {
+                                    "idUser":       INT,
+                                    "idCourse":     INT,  //  unfollow at course page, idCourse is valid, make "idLecture & idTeacher = -1"
+                                    "idLecure":     INT,  //  unfollow at lecture page, idLecture is valid, make "idCourse & idTeacher = -1"
+                                    "idTeacher":    INT    // unfollow at teahcer info page, idTeacher is valid, make "idCourse & idLecture = -1"
+                                                            // priority idTeacher > idCourse > idLecture
+                                }
+
+                Response:   
+                                {
+                                    "result":       INT     (result=0 fail; reuslt=1 success)
+                                }
+
+
+*********************************   Apply to be a teacher   **********************************
+Apply to be a teacher
+                Request: POST   /teacherapply
+                                {
+                                        "idUser": 		INT,
+                                        "firstName":            STRING,
+                                        "lastName":		STRING,
+                                        "profile": 		STRING,
+                                        "introWords":           STRING,
+                                        "resume":               STRING, 
+                                        "company":              STRING, 
+                                        "jobTitle":             STRING
+                                } 
+
+                Response:  
+                                {
+                                        "result":               INT  (0/1)
+                                }
+
+
+********************************  Account update  ***************************
+User Account update: (need to do)
+                Request: POST   /accountupdate
+                                {
+                                        "idUser": 		INT,
+                                        "roleLevel":            STRING,
+                                        "email":  		STRING,    (need to check email unique)
+                                        "username":             STRING,    (need to check username unique)
+                                        "firstName":            STRING,
+                                        "lastName":		STRING,
+                                        "profile": 		STRING,
+                                        "introWords":           STRING,
+                                        "resume":               STRING, (if role is student, be "")
+                                        "company":              STRING, (if role is student, be "")
+                                        "jobTitle":             STRING  (if role is student, be "")
+                                } 
+
+                Response:  User may not exits, receive 403 error
+                                {
+                                        "result":               INT  (0/1)
+                                }
+  
+**************************************** Permission code ******************************************                         
+permission code
+
+student new table     idUser, idCourse, status(0,1 means)
+
+
+get all my asked questions
+
+
+check student has the permission to visit a course
+
+get teacher info
+
+
+get all courses(order by created date desc)
 

@@ -26,6 +26,7 @@ public class CourseModel
     private String startDate;
     private String endDate;
     private int endFlag;
+    private String permissionCode;
     
     public CourseModel ()
     {
@@ -40,6 +41,7 @@ public class CourseModel
         this.levelNumber = 0;
         this.name = "";
         this.startDate = "";
+        this.permissionCode = "";
     }
 
     public int getIdCourse() {
@@ -128,6 +130,14 @@ public class CourseModel
 
     public void setEndFlag(int endFlag) {
         this.endFlag = endFlag;
+    }
+
+    public String getPermissionCode() {
+        return permissionCode;
+    }
+
+    public void setPermissionCode(String permissionCode) {
+        this.permissionCode = permissionCode;
     }
     
     public Timestamp convertToTimestamp(String date)
