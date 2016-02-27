@@ -9,6 +9,7 @@ import DBConnector.Connector;
 import Model.CheckResult;
 import Model.SendQuestionRequestModel;
 import Model.GetQuestionResponseModel;
+import Model.IdModel;
 import Model.TeacherQuestionActRequestModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -122,12 +123,13 @@ public class QuestionQuery
             {
                 query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
                         + "FROM QuestionQueue Q, Lecture L "
-                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status= ?) order by sendTime";
+                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status= ? or Q.status= ?) order by idQuestion";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, NEWSTATUS);
                 stmt.setString(3, ANSWERSTRING);
                 stmt.setString(4, READSTAUTS);
+                stmt.setString(5, BANSTRING);
             }
             
             else if (roleLevel == 1) //student, idQuestion
@@ -146,16 +148,55 @@ public class QuestionQuery
             {
                 query = "SELECT idQuestion, username, content, sendTime,Q.status, L.status\n" +
                         "FROM QuestionQueue Q, Lecture L\n" +
-                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and ((Q.status = ? and idQuestion > ?) or \n" +
-                        "( (Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)))";
+                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and \n" +
+                        "Q.status = ? and idQuestion > ? order by idQuestion";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,NEWSTATUS);
                 stmt.setInt(3, idQuestion);
-                stmt.setString(4,READSTAUTS);
-                stmt.setString(5, ANSWERSTRING);
-                stmt.setInt(6, idQuestion);
             }
+            rs = stmt.executeQuery();
+            while (rs.next())
+            {
+                GetQuestionResponseModel question = new GetQuestionResponseModel();
+                question.setLectureStatus(rs.getString("L.status"));
+                question.setIdQuestion(rs.getInt("idQuestion"));
+                question.setUsername(rs.getString("username"));
+                question.setSendTime(rs.getString("sendTime").substring(0,19));
+                question.setContent(rs.getString("content"));
+                question.setStatus(rs.getString("Q.status"));
+                questions.add(question);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }     
+        return questions;
+    }
+    
+    public List<GetQuestionResponseModel> getMyQuestions(IdModel idModel)
+    {
+        List<GetQuestionResponseModel> questions = new ArrayList<GetQuestionResponseModel>();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+                
+            query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
+                    + "FROM QuestionQueue Q, Lecture L "
+                    + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and Q.idUser = ? order by sendTime";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idModel.getIdLecture());
+            stmt.setInt(2, idModel.getIdUser());
+         
             rs = stmt.executeQuery();
             while (rs.next())
             {

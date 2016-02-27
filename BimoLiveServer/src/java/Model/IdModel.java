@@ -15,6 +15,7 @@ public class IdModel
     private int idCourse;
     private int idLecture;
     private int idTeacher;
+    private int idAdmin;
         
     public IdModel()
     {
@@ -22,6 +23,7 @@ public class IdModel
         this.idCourse = 0;
         this.idLecture = 0;
         this.idTeacher = 0;
+        this.idAdmin = 0;
     }
 
     public int getIdUser() {
@@ -54,5 +56,13 @@ public class IdModel
 
     public void setIdTeacher(int idTeacher) {
         this.idTeacher = idTeacher;
+    }
+
+    public int getIdAdmin() {
+        return idAdmin;
+    }
+
+    public void setIdAdmin(int idAdmin) {
+        this.idAdmin = idAdmin;
     }
 }

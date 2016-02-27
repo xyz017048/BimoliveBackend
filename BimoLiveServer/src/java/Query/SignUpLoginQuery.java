@@ -127,7 +127,7 @@ public class SignUpLoginQuery
         try
         {
             query = "SELECT idUser,email,username, roleLevel, firstName, lastName, "
-                    + "lastLogin, profile, introWords, regisDate FROM UserBasic"+
+                    + "lastLogin, profile, introWords, regisDate,applyStatus FROM UserBasic"+
                     " WHERE email = ? and password = ? and active = 1";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, email);
@@ -147,6 +147,7 @@ public class SignUpLoginQuery
                 loginResponse.setProfile(rs.getString("profile"));
                 loginResponse.setIntroWords(rs.getString("introWords"));
                 loginResponse.setRegisDate(rs.getString("regisDate").substring(0,19));
+                loginResponse.setApplyStatus(rs.getString("applyStatus"));
             }
             query = "UPDATE UserBasic set lastLogin = ?"+
                     " WHERE email = ?";
@@ -193,8 +194,74 @@ public class SignUpLoginQuery
             stmt.setString(8, "new");
             stmt.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
             stmt.setInt(10, user.getIdUser());
-            stmt.executeUpdate();
-            result.setResult(1);
+            int rows = stmt.executeUpdate();
+            if (rows != 0)
+                result.setResult(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }  
+        return result;
+    }
+    
+    public CheckResult accountUpdate(UserInfo user)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "UPDATE UserBasic set email = ?, username = ?, firstName = ?, lastName = ?, profile = ?, introWords = ?, resume = ?, company = ?, "
+                    + "jobTitle = ? WHERE idUser = ? ";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, user.getEmail());
+            stmt.setString(2, user.getUsername());
+            stmt.setString(3, user.getFirstName());
+            stmt.setString(4, user.getLastName());
+            stmt.setString(5, user.getProfile());
+            stmt.setString(6, user.getIntroWords());
+            stmt.setString(7, user.getResume());
+            stmt.setString(8, user.getCompany());
+            stmt.setString(9, user.getJobTitle());
+            stmt.setInt(10, user.getIdUser());
+            int rows = stmt.executeUpdate();
+            if (rows != 0)
+                result.setResult(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }  
+        return result;
+    }
+    
+    public CheckResult changePassword(int idUser, String psw)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "UPDATE UserBasic set password = ? WHERE idUser = ? ";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, psw);
+            stmt.setInt(2, idUser);
+            int rows = stmt.executeUpdate();
+            if (rows != 0)
+                result.setResult(1);
         }
         catch (Exception e)
         {

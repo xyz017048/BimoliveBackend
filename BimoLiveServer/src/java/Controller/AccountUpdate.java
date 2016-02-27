@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "ApplyToBeTeacher", urlPatterns = {"/teacherapply"})
-public class ApplyToBeTeacher extends HttpServlet 
+@WebServlet(name = "AccountUpdate", urlPatterns = {"/accountupdate"})
+public class AccountUpdate extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -58,11 +58,11 @@ public class ApplyToBeTeacher extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
-            CheckResult resultObject = loginQueryResult.applyToBeTeacher(userInfo);
+            SignUpLoginQuery query = new SignUpLoginQuery();
+            CheckResult resultObject = query.accountUpdate(userInfo);
             if (resultObject != null)
             {
-                if(resultObject.getResult() == 0)
+                if (resultObject.getResult() == 0)
                     response.setStatus(403);
                 else
                     out.write(gson.toJson(resultObject));

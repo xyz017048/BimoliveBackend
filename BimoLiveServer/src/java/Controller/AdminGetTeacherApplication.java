@@ -5,13 +5,15 @@
  */
 package Controller;
 
-import Model.CheckResult;
+import Model.IdModel;
 import Model.ReadRequestData;
 import Model.UserInfo;
-import Query.SignUpLoginQuery;
+import Query.AdminQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -22,8 +24,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "ApplyToBeTeacher", urlPatterns = {"/teacherapply"})
-public class ApplyToBeTeacher extends HttpServlet 
+@WebServlet(name = "AdminGetTeacherApplication", urlPatterns = {"/admin/teacherapplications"})
+public class AdminGetTeacherApplication extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,10 +47,14 @@ public class ApplyToBeTeacher extends HttpServlet
     {
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        UserInfo userInfo = gson.fromJson(requesString, UserInfo.class);
-        
-        if (userInfo == null)
+        IdModel idModel = gson.fromJson(requesString, IdModel.class);
+        if (idModel == null)
             return;
+        
+        int idAdmin = idModel.getIdAdmin();
+        int idUser = idModel.getIdUser();
+        
+        List<UserInfo> applications = new ArrayList<UserInfo>();
         
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
@@ -58,17 +64,12 @@ public class ApplyToBeTeacher extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
-            CheckResult resultObject = loginQueryResult.applyToBeTeacher(userInfo);
-            if (resultObject != null)
+            AdminQuery query = new AdminQuery();
+            applications = query.getApplications(idAdmin,idUser);
+            if (applications != null)
             {
-                if(resultObject.getResult() == 0)
-                    response.setStatus(403);
-                else
-                    out.write(gson.toJson(resultObject));
+                out.write(gson.toJson(applications));
             }
-            else
-                response.setStatus(500);
         } 
         catch(Exception ex)
         {
@@ -77,7 +78,7 @@ public class ApplyToBeTeacher extends HttpServlet
         finally 
         {
             out.close();
-        }
+        }     
     }
 
     /**

@@ -26,6 +26,8 @@ public class UserInfo
     private String resume;
     private String company;
     private String jobTitle;
+    private String applyStatus;
+    private int idAdmin;
     
     public UserInfo()
     {
@@ -44,6 +46,8 @@ public class UserInfo
         resume = "";
         company = "";
         jobTitle = "";
+        applyStatus = "";
+        idAdmin = 0;
     }
 
     public int getResult() 
@@ -170,5 +174,21 @@ public class UserInfo
     public void encrypt()
     {
         this.password = PasswordCrypto.getEncrypt(password);
+    }
+
+    public String getApplyStatus() {
+        return applyStatus;
+    }
+
+    public void setApplyStatus(String applyStatus) {
+        this.applyStatus = applyStatus;
+    }
+
+    public int getIdAdmin() {
+        return idAdmin;
+    }
+
+    public void setIdAdmin(int idAdmin) {
+        this.idAdmin = idAdmin;
     }
 }

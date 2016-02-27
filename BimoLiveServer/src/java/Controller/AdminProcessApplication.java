@@ -8,7 +8,7 @@ package Controller;
 import Model.CheckResult;
 import Model.ReadRequestData;
 import Model.UserInfo;
-import Query.SignUpLoginQuery;
+import Query.AdminQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "ApplyToBeTeacher", urlPatterns = {"/teacherapply"})
-public class ApplyToBeTeacher extends HttpServlet 
+@WebServlet(name = "AdminProcessApplication", urlPatterns = {"/admin/applicationdecision"})
+public class AdminProcessApplication extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -45,11 +45,11 @@ public class ApplyToBeTeacher extends HttpServlet
     {
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        UserInfo userInfo = gson.fromJson(requesString, UserInfo.class);
         
-        if (userInfo == null)
+        UserInfo action = gson.fromJson(requesString, UserInfo.class);
+        if (action == null)
             return;
-        
+       
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -58,17 +58,12 @@ public class ApplyToBeTeacher extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
-            CheckResult resultObject = loginQueryResult.applyToBeTeacher(userInfo);
-            if (resultObject != null)
+            AdminQuery query = new AdminQuery();
+            CheckResult result = query.updateApplication(action);
+            if (result != null)
             {
-                if(resultObject.getResult() == 0)
-                    response.setStatus(403);
-                else
-                    out.write(gson.toJson(resultObject));
+                out.write(gson.toJson(result));
             }
-            else
-                response.setStatus(500);
         } 
         catch(Exception ex)
         {

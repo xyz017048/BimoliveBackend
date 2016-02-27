@@ -10,6 +10,7 @@ import Model.CourseModel;
 import Model.LectureModel;
 import Model.StudentGetCourseInfoModel;
 import Model.StudentGetLectureInfoModel;
+import Model.UserInfo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,6 +117,144 @@ public class StudentCourseQuery
                 course.setEndFlag(rs.getInt("endFlag"));
                 courseInfoModel.setCourseModel(course);
                 courseInfoModel.setFollowCourse(1);
+                courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
+                courseInfoModel.setTeacherLastName(rs.getString("lastName"));
+                courses.add(courseInfoModel);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            courses = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return courses;
+    }
+    
+    public List<UserInfo> getFollowedTeachers(int idUser)
+    {
+        List<UserInfo> teachers = new ArrayList<UserInfo>();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+            query = "SELECT * FROM FollowTeacher FT, UserBasic U WHERE FT.idUser = ?"
+                    + " and FT.idTeacher = U.idUser";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            rs = stmt.executeQuery();
+            while(rs.next())
+            {
+                UserInfo teacher = new UserInfo();
+                teacher.setEmail(rs.getString("email"));
+                teacher.setUsername(rs.getString("username"));
+                teacher.setFirstName(rs.getString("firstName"));
+                teacher.setLastName(rs.getString("lastName"));
+                teacher.setProfile(rs.getString("profile"));
+                teacher.setIntroWords(rs.getString("introWords"));
+                teacher.setResume(rs.getString("resume"));
+                teacher.setCompany(rs.getString("company"));
+                teacher.setJobTitle(rs.getString("jobTitle"));
+                teachers.add(teacher);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            teachers = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return teachers;
+    }
+    
+    public StudentGetCourseInfoModel getSingleCourse(int idUser, int idCourse)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        StudentGetCourseInfoModel courseInfoModel = new StudentGetCourseInfoModel();
+        try
+        {
+            query = "SELECT * FROM CourseInfo C, UserBasic U WHERE"
+                    + " C.idCourse = ? and C.idUser = U.idUser";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idCourse);
+            rs = stmt.executeQuery();
+            if(rs.next())
+            {
+                CourseModel course = new CourseModel();
+                course.setIdCourse(rs.getInt("idCourse"));
+                course.setCategory(rs.getString("category"));
+                course.setLevelNumber(rs.getInt("levelNumber"));
+                course.setName(rs.getString("name"));
+                course.setIntro(rs.getString("intro"));
+                course.setImage(rs.getString("image"));
+                course.setCreateDate(rs.getString("createDate").substring(0,19));
+                course.setStartDate(rs.getString("startDate").substring(0,19));
+                course.setEndDate(rs.getString("endDate").substring(0,19));
+                course.setEndFlag(rs.getInt("endFlag"));
+                courseInfoModel.setCourseModel(course);
+                courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
+                courseInfoModel.setTeacherLastName(rs.getString("lastName"));
+            }
+            query = "SELECT * FROM FollowCourse FC where idUser = ? and idCourse = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            stmt.setInt(2, idCourse);
+            rs = stmt.executeQuery();
+            if(rs.next())
+                courseInfoModel.setFollowCourse(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            courseInfoModel = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return courseInfoModel;
+    }
+    
+    public List<StudentGetCourseInfoModel> getCourses(int idUser)
+    {
+        List<StudentGetCourseInfoModel> courses = new ArrayList<StudentGetCourseInfoModel>();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+            query = "SELECT * FROM CourseInfo C, UserBasic U WHERE C.idUser = U.idUser order by C.createDate desc";
+            stmt = conn.prepareStatement(query);
+            rs = stmt.executeQuery();
+            while(rs.next())
+            {
+                StudentGetCourseInfoModel courseInfoModel = new StudentGetCourseInfoModel();
+                CourseModel course = new CourseModel();
+                course.setIdCourse(rs.getInt("idCourse"));
+                course.setCategory(rs.getString("category"));
+                course.setLevelNumber(rs.getInt("levelNumber"));
+                course.setName(rs.getString("name"));
+                course.setIntro(rs.getString("intro"));
+                course.setImage(rs.getString("image"));
+                course.setCreateDate(rs.getString("createDate").substring(0,19));
+                course.setStartDate(rs.getString("startDate").substring(0,19));
+                course.setEndDate(rs.getString("endDate").substring(0,19));
+                course.setEndFlag(rs.getInt("endFlag"));
+                courseInfoModel.setCourseModel(course);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
                 courses.add(courseInfoModel);
