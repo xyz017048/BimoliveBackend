@@ -136,7 +136,6 @@ public class SignUpLoginQuery
             if (rs.next())
             {
                 result = 1;
-                loginResponse.setResult(result);
                 loginResponse.setIdUser(rs.getInt("idUser"));
                 loginResponse.setEmail(rs.getString("email"));
                 loginResponse.setUsername(rs.getString("username"));
@@ -148,6 +147,11 @@ public class SignUpLoginQuery
                 loginResponse.setIntroWords(rs.getString("introWords"));
                 loginResponse.setRegisDate(rs.getString("regisDate").substring(0,19));
                 loginResponse.setApplyStatus(rs.getString("applyStatus"));
+                loginResponse.setResume(rs.getString("resume"));
+                loginResponse.setCompany(rs.getString("company"));
+                loginResponse.setJobTitle(rs.getString("jobTitle"));
+                loginResponse.setResult(result);
+
             }
             query = "UPDATE UserBasic set lastLogin = ?"+
                     " WHERE email = ?";

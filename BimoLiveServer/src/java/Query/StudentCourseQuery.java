@@ -6,14 +6,18 @@
 package Query;
 
 import DBConnector.Connector;
+import Model.CheckResult;
 import Model.CourseModel;
+import Model.IdModel;
 import Model.LectureModel;
 import Model.StudentGetCourseInfoModel;
 import Model.StudentGetLectureInfoModel;
+import Model.StudentGetTeacherInfoModel;
 import Model.UserInfo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +59,7 @@ public class StudentCourseQuery
                 lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
                 lecture.setStatus(rs.getString("status"));
                 lecture.setUrl(rs.getString("url"));
-                lectureInfoModel.setLectureModel(lecture);
+                lectureInfoModel.setLectureInfo(lecture);
                 lectureInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 lectureInfoModel.setTeacherLastName(rs.getString("lastName"));
             }
@@ -73,6 +77,13 @@ public class StudentCourseQuery
             rs = stmt.executeQuery();
             if(rs.next())
                 lectureInfoModel.setFollowTeacher(1);
+            query = "SELECT * FROM PermissionStatus P, Lecture L where P.idUser = ? and P.idCourse = L.idCourse and idLecture=?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            stmt.setInt(2, idLecture);
+            rs = stmt.executeQuery();
+            if(rs.next())
+                lectureInfoModel.setPermitStatus(1);
         }
         catch (Exception e)
         {
@@ -115,7 +126,7 @@ public class StudentCourseQuery
                 course.setStartDate(rs.getString("startDate").substring(0,19));
                 course.setEndDate(rs.getString("endDate").substring(0,19));
                 course.setEndFlag(rs.getInt("endFlag"));
-                courseInfoModel.setCourseModel(course);
+                courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setFollowCourse(1);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
@@ -152,6 +163,7 @@ public class StudentCourseQuery
             while(rs.next())
             {
                 UserInfo teacher = new UserInfo();
+                teacher.setIdUser(rs.getInt("FT.idTeacher"));
                 teacher.setEmail(rs.getString("email"));
                 teacher.setUsername(rs.getString("username"));
                 teacher.setFirstName(rs.getString("firstName"));
@@ -175,6 +187,56 @@ public class StudentCourseQuery
             Connector.Close(conn);
         }
         return teachers;
+    }
+    
+    public StudentGetTeacherInfoModel getTeacherInfo(IdModel idModel)
+    {
+        StudentGetTeacherInfoModel teacherInfoModel = new StudentGetTeacherInfoModel();
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        
+        try
+        {
+            query = "SELECT * FROM UserBasic WHERE idUser = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idModel.getIdTeacher());
+            rs = stmt.executeQuery();
+            if(rs.next())
+            {
+                UserInfo teacher = new UserInfo();
+                teacher.setIdUser(rs.getInt("idUser"));
+                teacher.setEmail(rs.getString("email"));
+                teacher.setUsername(rs.getString("username"));
+                teacher.setFirstName(rs.getString("firstName"));
+                teacher.setLastName(rs.getString("lastName"));
+                teacher.setProfile(rs.getString("profile"));
+                teacher.setIntroWords(rs.getString("introWords"));
+                teacher.setResume(rs.getString("resume"));
+                teacher.setCompany(rs.getString("company"));
+                teacher.setJobTitle(rs.getString("jobTitle"));
+                teacher.setResult(1);
+                teacherInfoModel.setTeacherInfo(teacher);
+            }
+            query = "SELECT * FROM FollowTeacher WHERE idUser = ? and idTeacher = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idModel.getIdUser());
+            stmt.setInt(2, idModel.getIdTeacher());
+            rs = stmt.executeQuery();
+            if(rs.next())
+                teacherInfoModel.setFollowTeacher(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            teacherInfoModel = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return teacherInfoModel;
     }
     
     public StudentGetCourseInfoModel getSingleCourse(int idUser, int idCourse)
@@ -203,7 +265,7 @@ public class StudentCourseQuery
                 course.setStartDate(rs.getString("startDate").substring(0,19));
                 course.setEndDate(rs.getString("endDate").substring(0,19));
                 course.setEndFlag(rs.getInt("endFlag"));
-                courseInfoModel.setCourseModel(course);
+                courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
             }
@@ -254,7 +316,7 @@ public class StudentCourseQuery
                 course.setStartDate(rs.getString("startDate").substring(0,19));
                 course.setEndDate(rs.getString("endDate").substring(0,19));
                 course.setEndFlag(rs.getInt("endFlag"));
-                courseInfoModel.setCourseModel(course);
+                courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
                 courses.add(courseInfoModel);
@@ -272,4 +334,51 @@ public class StudentCourseQuery
         }
         return courses;
     }
+    
+    public CheckResult studentInputPermissionCode (IdModel idModel)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        boolean flag = false;
+        try
+        {
+            query = "SELECT * FROM CourseInfo C, Lecture L WHERE L.idCourse = C.idCourse and L.idLecture = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idModel.getIdLecture());
+            rs = stmt.executeQuery();
+            if (rs.next())
+            {
+                if (rs.getString("permissionCode") == "" || rs.getString("permissionCode").equals(idModel.getCode()))
+                {
+                    flag = true;
+                }
+            }
+            if(!flag)
+            {
+                return result;
+            }
+            
+            query = "INSERT INTO PermissionStatus (idUser, idCourse,date) VALUES(?, (SELECT idCourse FROM Lecture WHERE idLecture=?),?)";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1,idModel.getIdUser());
+            stmt.setInt(2,idModel.getIdLecture());
+            stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            stmt.executeUpdate();
+            
+            result.setResult(1);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
 }

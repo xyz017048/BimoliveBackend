@@ -64,7 +64,7 @@ public class StudentGetSingleLecture extends HttpServlet
             StudentGetLectureInfoModel lecture = courseQuery.getSingleLecture(idUser,idLecture);
             if (lecture != null)
             {
-                if(lecture.getLectureModel().getIdLecture() != 0)
+                if(lecture.getLectureInfo().getIdLecture() != 0)
                     out.write(gson.toJson(lecture));
                 else
                     response.setStatus(403);

@@ -13,17 +13,19 @@ public class StudentGetLectureInfoModel
 {
     private String teacherFirstName;
     private String teacherLastName;
-    private LectureModel lectureModel;
+    private LectureModel lectureInfo;
     private int followCourse;
     private int followTeacher;
+    private int permitStatus;
     
     public StudentGetLectureInfoModel()
     {
         this.teacherFirstName = "";
         this.teacherLastName = "";
-        this.lectureModel = new LectureModel();
+        this.lectureInfo = new LectureModel();
         this.followCourse = 0;
         this.followTeacher = 0;
+        this.permitStatus = 0;
     }
 
     public String getTeacherFirstName() {
@@ -42,12 +44,12 @@ public class StudentGetLectureInfoModel
         this.teacherLastName = teacherLastName;
     }
 
-    public LectureModel getLectureModel() {
-        return lectureModel;
+    public LectureModel getLectureInfo() {
+        return lectureInfo;
     }
 
-    public void setLectureModel(LectureModel lectureModel) {
-        this.lectureModel = lectureModel;
+    public void setLectureInfo(LectureModel lectureInfo) {
+        this.lectureInfo = lectureInfo;
     }
 
     public int getFollowCourse() {
@@ -64,5 +66,13 @@ public class StudentGetLectureInfoModel
 
     public void setFollowTeacher(int followTeacher) {
         this.followTeacher = followTeacher;
+    }
+
+    public int getPermitStatus() {
+        return permitStatus;
+    }
+
+    public void setPermitStatus(int permitStatus) {
+        this.permitStatus = permitStatus;
     }
 }

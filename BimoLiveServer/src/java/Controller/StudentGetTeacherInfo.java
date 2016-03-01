@@ -7,7 +7,7 @@ package Controller;
 
 import Model.IdModel;
 import Model.ReadRequestData;
-import Model.StudentGetCourseInfoModel;
+import Model.StudentGetTeacherInfoModel;
 import Query.StudentCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "StudentGetSingleCourse", urlPatterns = {"/student/singlecourse"})
-public class StudentGetSingleCourse extends HttpServlet 
+@WebServlet(name = "StudentGetTeacherInfo", urlPatterns = {"/student/teacherinfo"})
+public class StudentGetTeacherInfo extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -49,8 +49,6 @@ public class StudentGetSingleCourse extends HttpServlet
         if (idModel == null)
             return;
         
-        int idUser = idModel.getIdUser();
-        int idCourse = idModel.getIdCourse();
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -60,11 +58,11 @@ public class StudentGetSingleCourse extends HttpServlet
         try 
         {
             StudentCourseQuery courseQuery = new StudentCourseQuery();
-            StudentGetCourseInfoModel courseInfoModel = courseQuery.getSingleCourse(idUser, idCourse);
-            if (courseInfoModel != null)
+            StudentGetTeacherInfoModel teacherInfoModel = courseQuery.getTeacherInfo(idModel);
+            if (teacherInfoModel != null)
             {
-                if(courseInfoModel.getCourseInfo().getIdCourse()!= 0)
-                    out.write(gson.toJson(courseInfoModel));
+                if (teacherInfoModel.getTeacherInfo().getResult() == 1)
+                    out.write(gson.toJson(teacherInfoModel));
                 else
                     response.setStatus(403);
             }

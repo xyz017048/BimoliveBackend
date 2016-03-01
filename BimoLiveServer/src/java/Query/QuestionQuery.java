@@ -155,9 +155,15 @@ public class QuestionQuery
                 stmt.setString(2,NEWSTATUS);
                 stmt.setInt(3, idQuestion);
             }
+            else
+            {
+                return questions;
+            }
             rs = stmt.executeQuery();
+            int flag = 0;
             while (rs.next())
             {
+                flag = 1;
                 GetQuestionResponseModel question = new GetQuestionResponseModel();
                 question.setLectureStatus(rs.getString("L.status"));
                 question.setIdQuestion(rs.getInt("idQuestion"));
@@ -166,6 +172,19 @@ public class QuestionQuery
                 question.setContent(rs.getString("content"));
                 question.setStatus(rs.getString("Q.status"));
                 questions.add(question);
+            }
+            if (flag == 0)
+            {
+                query = "SELECT status FROM Lecture WHERE idLecture = ?";
+                stmt = conn.prepareStatement(query);
+                stmt.setInt(1, idLecture);
+                rs = stmt.executeQuery();
+                if (rs.getString("status") == "finish")
+                {
+                    GetQuestionResponseModel question = new GetQuestionResponseModel();
+                    question.setLectureStatus("finish");
+                    questions.add(question);
+                }
             }
         }
         catch (Exception e)

@@ -13,7 +13,7 @@ public class StudentGetCourseInfoModel
 {
     private String teacherFirstName;
     private String teacherLastName;
-    private CourseModel courseModel;
+    private CourseModel courseInfo;
     private int followCourse;
 //    private int followTeacher;
     
@@ -21,7 +21,7 @@ public class StudentGetCourseInfoModel
     {
         this.teacherFirstName = "";
         this.teacherLastName = "";
-        this.courseModel = new CourseModel();
+        this.courseInfo = new CourseModel();
         this.followCourse = 0;
     }
 
@@ -41,12 +41,12 @@ public class StudentGetCourseInfoModel
         this.teacherLastName = teacherLastName;
     }
 
-    public CourseModel getCourseModel() {
-        return courseModel;
+    public CourseModel getCourseInfo() {
+        return courseInfo;
     }
 
-    public void setCourseModel(CourseModel courseModel) {
-        this.courseModel = courseModel;
+    public void setCourseInfo(CourseModel courseInfo) {
+        this.courseInfo = courseInfo;
     }
 
     public int getFollowCourse() {

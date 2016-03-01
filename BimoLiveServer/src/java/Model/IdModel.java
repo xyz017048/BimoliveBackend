@@ -16,6 +16,7 @@ public class IdModel
     private int idLecture;
     private int idTeacher;
     private int idAdmin;
+    private String code;
         
     public IdModel()
     {
@@ -24,6 +25,7 @@ public class IdModel
         this.idLecture = 0;
         this.idTeacher = 0;
         this.idAdmin = 0;
+        this.code = "";
     }
 
     public int getIdUser() {
@@ -64,5 +66,13 @@ public class IdModel
 
     public void setIdAdmin(int idAdmin) {
         this.idAdmin = idAdmin;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }
