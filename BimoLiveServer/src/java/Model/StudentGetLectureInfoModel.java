@@ -13,6 +13,7 @@ public class StudentGetLectureInfoModel
 {
     private String teacherFirstName;
     private String teacherLastName;
+    private int idTeacher;
     private LectureModel lectureInfo;
     private int followCourse;
     private int followTeacher;
@@ -22,6 +23,7 @@ public class StudentGetLectureInfoModel
     {
         this.teacherFirstName = "";
         this.teacherLastName = "";
+        this.idTeacher = 0;
         this.lectureInfo = new LectureModel();
         this.followCourse = 0;
         this.followTeacher = 0;
@@ -42,6 +44,14 @@ public class StudentGetLectureInfoModel
 
     public void setTeacherLastName(String teacherLastName) {
         this.teacherLastName = teacherLastName;
+    }
+
+    public int getIdTeacher() {
+        return idTeacher;
+    }
+
+    public void setIdTeacher(int idTeacher) {
+        this.idTeacher = idTeacher;
     }
 
     public LectureModel getLectureInfo() {

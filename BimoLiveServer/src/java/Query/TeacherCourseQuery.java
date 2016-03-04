@@ -434,7 +434,7 @@ public class TeacherCourseQuery
                 result.setResult(3); // the teacher does not hold this lecture
                 return result;
             }
-            query = "UPDATE Lecture set status = ?, url = ?, startTime = ? WHERE idLecture = ?";
+            query = "UPDATE Lecture set status = ?, url = ?, realStart = ? WHERE idLecture = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, LIVESTATUS);
             stmt.setString(2, key);
@@ -477,7 +477,7 @@ public class TeacherCourseQuery
                 result.setResult(2); // the teacher does not hold this live lecture
                 return result;
             }
-            query = "UPDATE Lecture set status = ?, endTime = ? WHERE idLecture = ?";
+            query = "UPDATE Lecture set status = ?, realEnd = ? WHERE idLecture = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, FINISHSTATUS);
             stmt.setTime(2,new java.sql.Time((new java.util.Date()).getTime()));

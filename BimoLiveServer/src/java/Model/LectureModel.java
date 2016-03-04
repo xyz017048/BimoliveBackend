@@ -25,8 +25,10 @@ public class LectureModel
     private String createDate;
     private String startTime;
     private String endTime;
-    private String status;       // wait, live, record
+    private String status;       // wait, live, replay, finish
     private String url;
+    private String realStart;
+    private String realEnd;
     
     
     public LectureModel()
@@ -43,6 +45,8 @@ public class LectureModel
         this.createDate = "";
         this.status = "";
         this.url = "";
+        this.realStart = "";
+        this.realEnd = "";
     }
 
     public int getIdLecture() {
@@ -139,6 +143,22 @@ public class LectureModel
 
     public String getCreateDate() {
         return createDate;
+    }
+
+    public String getRealStart() {
+        return realStart;
+    }
+
+    public void setRealStart(String realStart) {
+        this.realStart = realStart;
+    }
+
+    public String getRealEnd() {
+        return realEnd;
+    }
+
+    public void setRealEnd(String realEnd) {
+        this.realEnd = realEnd;
     }
     
     public java.sql.Date getSqlDate(String datesString)

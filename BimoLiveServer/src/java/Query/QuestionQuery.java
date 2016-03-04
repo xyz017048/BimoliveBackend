@@ -111,7 +111,7 @@ public class QuestionQuery
         {
             if(roleLevel == 1 && idQuestion == -1) //student, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
+                query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status "
                         + "FROM QuestionQueue Q, Lecture L "
                         + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? ) order by changeTime";
                 stmt = conn.prepareStatement(query);
@@ -121,7 +121,7 @@ public class QuestionQuery
             }
             else if (roleLevel == 2 && idQuestion == -1) //teacher, all
             {
-                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status "
+                query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status "
                         + "FROM QuestionQueue Q, Lecture L "
                         + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status= ? or Q.status= ?) order by idQuestion";
                 stmt = conn.prepareStatement(query);
@@ -134,7 +134,7 @@ public class QuestionQuery
             
             else if (roleLevel == 1) //student, idQuestion
             {
-                query = "SELECT idQuestion, username, content, sendTime, Q.status, L.status\n"
+                query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status\n"
                         + "FROM QuestionQueue Q, Lecture L\n" +
                         "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)\n"
                         + "order by changeTime";
@@ -146,7 +146,7 @@ public class QuestionQuery
             }
             else if (roleLevel == 2) // teacher, idQuestion
             {
-                query = "SELECT idQuestion, username, content, sendTime,Q.status, L.status\n" +
+                query = "SELECT idQuestion, username, content, sendTime,changeTime, Q.status, L.status\n" +
                         "FROM QuestionQueue Q, Lecture L\n" +
                         "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and \n" +
                         "Q.status = ? and idQuestion > ? order by idQuestion";
@@ -171,6 +171,7 @@ public class QuestionQuery
                 question.setSendTime(rs.getString("sendTime").substring(0,19));
                 question.setContent(rs.getString("content"));
                 question.setStatus(rs.getString("Q.status"));
+                question.setChangeTime(rs.getString("changeTime").substring(0,19));
                 questions.add(question);
             }
             if (flag == 0)
@@ -179,7 +180,7 @@ public class QuestionQuery
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 rs = stmt.executeQuery();
-                if (rs.getString("status") == "finish")
+                if (rs.next() && "finish".equals(rs.getString("status")))
                 {
                     GetQuestionResponseModel question = new GetQuestionResponseModel();
                     question.setLectureStatus("finish");

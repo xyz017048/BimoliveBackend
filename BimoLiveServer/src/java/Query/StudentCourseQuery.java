@@ -10,6 +10,8 @@ import Model.CheckResult;
 import Model.CourseModel;
 import Model.IdModel;
 import Model.LectureModel;
+import Model.SearchRequestModel;
+import Model.SearchResponseModel;
 import Model.StudentGetCourseInfoModel;
 import Model.StudentGetLectureInfoModel;
 import Model.StudentGetTeacherInfoModel;
@@ -30,7 +32,11 @@ public class StudentCourseQuery
     private  String query = null;
     private  PreparedStatement stmt = null;
     private  ResultSet rs = null;
-    
+    private final String SEARCHALL = "all";
+    private final String SEARCHCOURSE = "course";
+    private final String SEARCHLECTURE = "lecture";
+    private final String SEARCHTEACHER = "teacher";
+
     public StudentGetLectureInfoModel getSingleLecture(int idUser, int idLecture)
     {
         Connection conn = Connector.Get();
@@ -46,20 +52,9 @@ public class StudentCourseQuery
             rs = stmt.executeQuery();
             if(rs.next())
             {
-                LectureModel lecture = new LectureModel();
-                lecture.setIdCourse(rs.getInt("idCourse"));
-                lecture.setIdLecture(rs.getInt("idLecture"));
-                lecture.setLectureNum(rs.getInt("lectureNum"));
-                lecture.setTopic(rs.getString("topic"));
-                lecture.setIntro(rs.getString("intro"));
-                lecture.setImage(rs.getString("image"));
-                lecture.setCreateDate(rs.getString("createDate").substring(0,19));
-                lecture.setScheduleDate(rs.getString("scheduleDate"));
-                lecture.setStartTime(rs.getTime("startTime").toString().substring(0,5));
-                lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
-                lecture.setStatus(rs.getString("status"));
-                lecture.setUrl(rs.getString("url"));
+                LectureModel lecture = getLecture(rs);
                 lectureInfoModel.setLectureInfo(lecture);
+                lectureInfoModel.setIdTeacher(rs.getInt("C.idUser"));
                 lectureInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 lectureInfoModel.setTeacherLastName(rs.getString("lastName"));
             }
@@ -115,17 +110,7 @@ public class StudentCourseQuery
             while(rs.next())
             {
                 StudentGetCourseInfoModel courseInfoModel = new StudentGetCourseInfoModel();
-                CourseModel course = new CourseModel();
-                course.setIdCourse(rs.getInt("idCourse"));
-                course.setCategory(rs.getString("category"));
-                course.setLevelNumber(rs.getInt("levelNumber"));
-                course.setName(rs.getString("name"));
-                course.setIntro(rs.getString("intro"));
-                course.setImage(rs.getString("image"));
-                course.setCreateDate(rs.getString("createDate").substring(0,19));
-                course.setStartDate(rs.getString("startDate").substring(0,19));
-                course.setEndDate(rs.getString("endDate").substring(0,19));
-                course.setEndFlag(rs.getInt("endFlag"));
+                CourseModel course = getCourse(rs);
                 courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setFollowCourse(1);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
@@ -204,17 +189,7 @@ public class StudentCourseQuery
             rs = stmt.executeQuery();
             if(rs.next())
             {
-                UserInfo teacher = new UserInfo();
-                teacher.setIdUser(rs.getInt("idUser"));
-                teacher.setEmail(rs.getString("email"));
-                teacher.setUsername(rs.getString("username"));
-                teacher.setFirstName(rs.getString("firstName"));
-                teacher.setLastName(rs.getString("lastName"));
-                teacher.setProfile(rs.getString("profile"));
-                teacher.setIntroWords(rs.getString("introWords"));
-                teacher.setResume(rs.getString("resume"));
-                teacher.setCompany(rs.getString("company"));
-                teacher.setJobTitle(rs.getString("jobTitle"));
+                UserInfo teacher = getTeacher(rs);
                 teacher.setResult(1);
                 teacherInfoModel.setTeacherInfo(teacher);
             }
@@ -254,17 +229,7 @@ public class StudentCourseQuery
             rs = stmt.executeQuery();
             if(rs.next())
             {
-                CourseModel course = new CourseModel();
-                course.setIdCourse(rs.getInt("idCourse"));
-                course.setCategory(rs.getString("category"));
-                course.setLevelNumber(rs.getInt("levelNumber"));
-                course.setName(rs.getString("name"));
-                course.setIntro(rs.getString("intro"));
-                course.setImage(rs.getString("image"));
-                course.setCreateDate(rs.getString("createDate").substring(0,19));
-                course.setStartDate(rs.getString("startDate").substring(0,19));
-                course.setEndDate(rs.getString("endDate").substring(0,19));
-                course.setEndFlag(rs.getInt("endFlag"));
+                CourseModel course = getCourse(rs);
                 courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
@@ -305,17 +270,7 @@ public class StudentCourseQuery
             while(rs.next())
             {
                 StudentGetCourseInfoModel courseInfoModel = new StudentGetCourseInfoModel();
-                CourseModel course = new CourseModel();
-                course.setIdCourse(rs.getInt("idCourse"));
-                course.setCategory(rs.getString("category"));
-                course.setLevelNumber(rs.getInt("levelNumber"));
-                course.setName(rs.getString("name"));
-                course.setIntro(rs.getString("intro"));
-                course.setImage(rs.getString("image"));
-                course.setCreateDate(rs.getString("createDate").substring(0,19));
-                course.setStartDate(rs.getString("startDate").substring(0,19));
-                course.setEndDate(rs.getString("endDate").substring(0,19));
-                course.setEndFlag(rs.getInt("endFlag"));
+                CourseModel course = getCourse(rs);
                 courseInfoModel.setCourseInfo(course);
                 courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 courseInfoModel.setTeacherLastName(rs.getString("lastName"));
@@ -381,4 +336,161 @@ public class StudentCourseQuery
         return result;
     }
     
+    public SearchResponseModel getSearchResult(SearchRequestModel requestModel)
+    {
+        SearchResponseModel searchResponseModel = new SearchResponseModel();
+        List<StudentGetCourseInfoModel> courses = new ArrayList<StudentGetCourseInfoModel>();
+        List<StudentGetLectureInfoModel> lectures = new ArrayList<StudentGetLectureInfoModel>();
+        List<UserInfo> teachers = new ArrayList<UserInfo>();
+        
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        String type = requestModel.getType();
+        String words = requestModel.getWords();
+        try
+        {
+            if (type.equals(SEARCHALL))
+            {
+                courses = searchByCourse(conn, words);
+                lectures =searchByLecture(conn, words);
+                teachers = searchByTeacher(conn, words);
+            }
+            else if (type.equals(SEARCHCOURSE))
+                courses = searchByCourse(conn, words);
+            else if(type.equals(SEARCHLECTURE))
+                lectures = searchByLecture(conn, words);
+            else if (type.equals(SEARCHTEACHER))
+                teachers = searchByTeacher(conn, words);
+            searchResponseModel.setCourses(courses);
+            searchResponseModel.setLectures(lectures);
+            searchResponseModel.setTeachers(teachers);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            searchResponseModel = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return searchResponseModel;
+    }
+    
+    private List<StudentGetCourseInfoModel> searchByCourse(Connection conn, String words) throws Exception
+    {
+        List<StudentGetCourseInfoModel> courses = new ArrayList<StudentGetCourseInfoModel>();
+        query = "SELECT * FROM CourseInfo C, UserBasic U \n"
+                + "WHERE C.idUser = U.idUser and (C.name like ? or C.intro like ? )\n"
+                + "order by C.createDate desc";
+        stmt = conn.prepareStatement(query);
+        stmt.setString(1, "%" +words+"%");
+        stmt.setString(2, "%" +words+"%");
+        rs = stmt.executeQuery();
+        while(rs.next())
+        {
+            StudentGetCourseInfoModel courseInfoModel = new StudentGetCourseInfoModel();
+            CourseModel course = getCourse(rs);
+            courseInfoModel.setCourseInfo(course);
+            courseInfoModel.setTeacherFirstName(rs.getString("firstName"));
+            courseInfoModel.setTeacherLastName(rs.getString("lastName"));
+            courses.add(courseInfoModel);
+        }
+        return courses;
+    }
+    
+    private List<StudentGetLectureInfoModel> searchByLecture(Connection conn, String words) throws Exception
+    {
+        List<StudentGetLectureInfoModel> lectures = new ArrayList<StudentGetLectureInfoModel>();
+        query = "SELECT * FROM UserBasic U, Lecture L, CourseInfo C \n" +
+                        "WHERE U.idUser = C.idUser and L.idCourse = C.idCourse and (L.topic like ? or L.intro like ?) \n"
+                        + "order by L.createDate desc";
+        stmt = conn.prepareStatement(query);
+        stmt.setString(1, "%" +words+"%");
+        stmt.setString(2, "%" +words+"%");
+        rs = stmt.executeQuery();
+        while(rs.next())
+        {
+            StudentGetLectureInfoModel lectureInfoModel = new StudentGetLectureInfoModel();
+            LectureModel lecture = getLecture(rs);
+            lectureInfoModel.setLectureInfo(lecture);
+            lectureInfoModel.setTeacherFirstName(rs.getString("firstName"));
+            lectureInfoModel.setTeacherLastName(rs.getString("lastName"));
+            lectureInfoModel.setIdTeacher(rs.getInt("C.idUser"));
+            lectures.add(lectureInfoModel);
+        }
+        return lectures;
+    }
+    
+    private List<UserInfo> searchByTeacher(Connection conn, String words) throws Exception
+    {
+        List<UserInfo> teachers = new ArrayList<UserInfo>();
+        query = "SELECT * FROM UserBasic WHERE firstName like ? or lastName like ? or username like ?";
+        stmt = conn.prepareStatement(query);
+        stmt.setString(1, "%" +words+"%");
+        stmt.setString(2, "%" +words+"%");
+        stmt.setString(3, "%" +words+"%");
+        rs = stmt.executeQuery();
+        while(rs.next())
+        {
+            UserInfo teacher = getTeacher(rs);
+            teachers.add(teacher);
+        }
+        return teachers;
+    }
+    
+    private LectureModel getLecture(ResultSet rs) throws Exception
+    { 
+        LectureModel lecture = new LectureModel();
+        lecture.setIdCourse(rs.getInt("idCourse"));
+        lecture.setIdLecture(rs.getInt("idLecture"));
+        lecture.setLectureNum(rs.getInt("lectureNum"));
+        lecture.setTopic(rs.getString("topic"));
+        lecture.setIntro(rs.getString("intro"));
+        lecture.setImage(rs.getString("image"));
+        lecture.setCreateDate(rs.getString("createDate").substring(0,19));
+        lecture.setScheduleDate(rs.getString("scheduleDate"));
+        lecture.setStartTime(rs.getTime("startTime").toString().substring(0,5));
+        lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
+        lecture.setStatus(rs.getString("status"));
+        lecture.setUrl(rs.getString("url"));
+        lecture.setRealStart(rs.getString("realStart"));
+        lecture.setRealEnd(rs.getString("realEnd"));
+        return lecture;
+    }
+ 
+    private CourseModel getCourse(ResultSet rs)throws Exception
+    {
+        CourseModel course = new CourseModel();
+        course.setIdCourse(rs.getInt("idCourse"));
+        course.setIdUser(rs.getInt("C.idUser"));
+        course.setCategory(rs.getString("category"));
+        course.setLevelNumber(rs.getInt("levelNumber"));
+        course.setName(rs.getString("name"));
+        course.setIntro(rs.getString("intro"));
+        course.setImage(rs.getString("image"));
+        course.setCreateDate(rs.getString("createDate").substring(0,19));
+        course.setStartDate(rs.getString("startDate").substring(0,19));
+        course.setEndDate(rs.getString("endDate").substring(0,19));
+        course.setEndFlag(rs.getInt("endFlag"));
+        return course;
+    }
+    
+    private UserInfo getTeacher(ResultSet rs) throws Exception
+    {
+        UserInfo teacher = new UserInfo();
+        teacher.setIdUser(rs.getInt("idUser"));
+        teacher.setEmail(rs.getString("email"));
+        teacher.setUsername(rs.getString("username"));
+        teacher.setFirstName(rs.getString("firstName"));
+        teacher.setLastName(rs.getString("lastName"));
+        teacher.setProfile(rs.getString("profile"));
+        teacher.setIntroWords(rs.getString("introWords"));
+        teacher.setResume(rs.getString("resume"));
+        teacher.setCompany(rs.getString("company"));
+        teacher.setJobTitle(rs.getString("jobTitle"));
+        return teacher;
+    }
 }

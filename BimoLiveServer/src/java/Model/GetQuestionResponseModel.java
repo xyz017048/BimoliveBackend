@@ -16,6 +16,7 @@ public class GetQuestionResponseModel
     private String username;
     private String content;
     private String sendTime;
+    private String changeTime;
     private String status;
     
     public GetQuestionResponseModel()
@@ -26,6 +27,7 @@ public class GetQuestionResponseModel
         this.content = "";
         this.sendTime = "";
         this.status = "";
+        this.changeTime= "";
     }
 
     public int getIdQuestion() 
@@ -85,5 +87,12 @@ public class GetQuestionResponseModel
     public void setLectureStatus(String lectureStatus) {
         this.lectureStatus = lectureStatus;
     }
-    
+
+    public String getChangeTime() {
+        return changeTime;
+    }
+
+    public void setChangeTime(String changeTime) {
+        this.changeTime = changeTime;
+    }
 }

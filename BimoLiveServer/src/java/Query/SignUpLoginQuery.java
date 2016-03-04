@@ -126,8 +126,7 @@ public class SignUpLoginQuery
             return null;
         try
         {
-            query = "SELECT idUser,email,username, roleLevel, firstName, lastName, "
-                    + "lastLogin, profile, introWords, regisDate,applyStatus FROM UserBasic"+
+            query = "SELECT * FROM UserBasic"+
                     " WHERE email = ? and password = ? and active = 1";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, email);
@@ -151,7 +150,6 @@ public class SignUpLoginQuery
                 loginResponse.setCompany(rs.getString("company"));
                 loginResponse.setJobTitle(rs.getString("jobTitle"));
                 loginResponse.setResult(result);
-
             }
             query = "UPDATE UserBasic set lastLogin = ?"+
                     " WHERE email = ?";
