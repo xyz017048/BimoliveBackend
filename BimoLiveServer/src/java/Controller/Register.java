@@ -7,6 +7,7 @@ package Controller;
 
 import Model.ReadRequestData;
 import Model.RegisterRequestModel;
+import Model.SendNotification;
 import Query.SignUpLoginQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -52,7 +53,8 @@ public class Register extends HttpServlet
         regisRequestModel.encrypt();
         SignUpLoginQuery loginQueryResult = new SignUpLoginQuery();
         loginQueryResult.userRegister(regisRequestModel);
-        
+        SendNotification sendNotification = new SendNotification(regisRequestModel.getEmail(), "REGISTER", "");
+        sendNotification.send();
 //        System.out.println("Request: email= " + regisRequestModel.getEmail() + ", password= " +regisRequestModel.getPassword());
 
         response.setContentType("application/json;charset=UTF-8");

@@ -6,10 +6,9 @@
 package Controller;
 
 import Model.CheckResult;
+import Model.IdModel;
 import Model.ReadRequestData;
-import Model.SendNotification;
-import Model.UserInfo;
-import Query.AdminQuery;
+import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -23,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Chonghuan
  */
-@WebServlet(name = "AdminProcessApplication", urlPatterns = {"/admin/applicationdecision"})
-public class AdminProcessApplication extends HttpServlet 
+@WebServlet(name = "TeacherUploadLecture", urlPatterns = {"/teacher/uploadlecture"})
+public class TeacherUploadLecture extends HttpServlet 
 {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -44,13 +43,12 @@ public class AdminProcessApplication extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-        String requesString = ReadRequestData.getData(request);
+        String requeString = ReadRequestData.getData(request);
         Gson gson= new Gson();
-        
-        UserInfo action = gson.fromJson(requesString, UserInfo.class);
-        if (action == null)
+        IdModel idModel = gson.fromJson(requeString, IdModel.class);
+        if(idModel == null)
             return;
-       
+        
         response.setContentType("application/json;charset=UTF-8");
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
@@ -59,16 +57,18 @@ public class AdminProcessApplication extends HttpServlet
         PrintWriter out = response.getWriter();
         try 
         {
-            AdminQuery query = new AdminQuery();
-            CheckResult result = query.updateApplication(action);
-            if (result != null)
+            TeacherCourseQuery courseQuery = new TeacherCourseQuery();
+            CheckResult resultObject = courseQuery.uploadLecture(idModel);
+            if (resultObject != null)
             {
-                if(action.getApplyStatus().equals("approve") || action.getApplyStatus().equals("decline"))
-                {
-                    SendNotification sendNotification = new SendNotification(action.getEmail(), "TEACHERAPPLICATION", action.getApplyStatus());
-                    sendNotification.send();
-                }
-                out.write(gson.toJson(result));
+                if (resultObject.getResult() == 2)
+                    response.setStatus(403);
+                else
+                    out.write(gson.toJson(resultObject));
+            }
+            else
+            {
+                response.setStatus(500);
             }
         } 
         catch(Exception ex)

@@ -9,6 +9,7 @@ import DBConnector.Connector;
 import Model.CheckResult;
 import Model.CourseModel;
 import Model.CourseCategoryModel;
+import Model.IdModel;
 import Model.LectureModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -438,11 +439,54 @@ public class TeacherCourseQuery
             stmt = conn.prepareStatement(query);
             stmt.setString(1, LIVESTATUS);
             stmt.setString(2, key);
-            stmt.setTime(3,new java.sql.Time((new java.util.Date()).getTime()));
+            stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
             stmt.setInt(4,idLecture);
             stmt.executeUpdate();
             
             result.setResult(1); 
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            result = null;
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
+    public CheckResult uploadLecture(IdModel idModel)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "SELECT * FROM Lecture L, CourseInfo C \n" +
+                    "WHERE L.idLecture = ? and L.idCourse=C.idCourse and C.idUser = ? and (L.status = ? or L.status = ? )";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idModel.getIdLecture());
+            stmt.setInt(2, idModel.getIdUser());
+            stmt.setString(3, FINISHSTATUS);
+            stmt.setString(4, REPLAYSTATUS);
+            rs = stmt.executeQuery();
+            if(!rs.next())
+            {
+                result.setResult(2); // the teacher does not hold this live lecture
+                return result;
+            }
+            query = "UPDATE Lecture set status = ?, url = ? WHERE idLecture = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setString(1, REPLAYSTATUS);
+            stmt.setString(2, idModel.getUrl());
+            stmt.setInt(3,idModel.getIdLecture());
+            stmt.executeUpdate();
+            
+            result.setResult(1);  
         }
         catch (Exception e)
         {
@@ -480,7 +524,7 @@ public class TeacherCourseQuery
             query = "UPDATE Lecture set status = ?, realEnd = ? WHERE idLecture = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, FINISHSTATUS);
-            stmt.setTime(2,new java.sql.Time((new java.util.Date()).getTime()));
+            stmt.setTimestamp(2,new Timestamp(System.currentTimeMillis()));
             stmt.setInt(3,idLecture);
             stmt.executeUpdate();
             

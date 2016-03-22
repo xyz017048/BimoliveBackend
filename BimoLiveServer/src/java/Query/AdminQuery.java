@@ -106,12 +106,17 @@ public class AdminQuery
         CheckResult result = new CheckResult();
         try
         {
-            query = "UPDATE UserBasic set applyStatus = ?, idAdmin = ?, changeDate = ? where idUser = ?";
+            if(action.getApplyStatus().equals("approve"))
+                action.setRoleLevel(2);
+            else
+                action.setRoleLevel(1);
+            query = "UPDATE UserBasic set applyStatus = ?, idAdmin = ?, changeDate = ?, roleLevel = ? where idUser = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1,action.getApplyStatus());
             stmt.setInt(2,action.getIdAdmin());
             stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            stmt.setInt(4,action.getIdUser());
+            stmt.setInt(4, action.getRoleLevel());
+            stmt.setInt(5,action.getIdUser());
             stmt.executeUpdate();
             
             result.setResult(1);

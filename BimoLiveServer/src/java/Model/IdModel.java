@@ -17,6 +17,7 @@ public class IdModel
     private int idTeacher;
     private int idAdmin;
     private String code;
+    private String url;
         
     public IdModel()
     {
@@ -26,6 +27,7 @@ public class IdModel
         this.idTeacher = 0;
         this.idAdmin = 0;
         this.code = "";
+        this.url= "";
     }
 
     public int getIdUser() {
@@ -74,5 +76,13 @@ public class IdModel
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
