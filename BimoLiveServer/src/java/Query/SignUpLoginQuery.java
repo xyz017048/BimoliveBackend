@@ -149,6 +149,7 @@ public class SignUpLoginQuery
                 loginResponse.setResume(rs.getString("resume"));
                 loginResponse.setCompany(rs.getString("company"));
                 loginResponse.setJobTitle(rs.getString("jobTitle"));
+                loginResponse.setKeyString(rs.getString("keyString"));
                 loginResponse.setResult(result);
             }
             query = "UPDATE UserBasic set lastLogin = ?"+

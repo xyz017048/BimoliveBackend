@@ -54,6 +54,7 @@ public class StudentCourseQuery
             {
                 LectureModel lecture = getLecture(rs);
                 lectureInfoModel.setLectureInfo(lecture);
+                lectureInfoModel.setCourseName(rs.getString("name"));
                 lectureInfoModel.setIdTeacher(rs.getInt("C.idUser"));
                 lectureInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 lectureInfoModel.setTeacherLastName(rs.getString("lastName"));
@@ -444,20 +445,20 @@ public class StudentCourseQuery
     private LectureModel getLecture(ResultSet rs) throws Exception
     { 
         LectureModel lecture = new LectureModel();
-        lecture.setIdCourse(rs.getInt("idCourse"));
-        lecture.setIdLecture(rs.getInt("idLecture"));
-        lecture.setLectureNum(rs.getInt("lectureNum"));
-        lecture.setTopic(rs.getString("topic"));
-        lecture.setIntro(rs.getString("intro"));
-        lecture.setImage(rs.getString("image"));
-        lecture.setCreateDate(rs.getString("createDate").substring(0,19));
-        lecture.setScheduleDate(rs.getString("scheduleDate"));
-        lecture.setStartTime(rs.getTime("startTime").toString().substring(0,5));
-        lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
-        lecture.setStatus(rs.getString("status"));
-        lecture.setUrl(rs.getString("url"));
-        lecture.setRealStart(rs.getString("realStart"));
-        lecture.setRealEnd(rs.getString("realEnd"));
+        lecture.setIdCourse(rs.getInt("L.idCourse"));
+        lecture.setIdLecture(rs.getInt("L.idLecture"));
+        lecture.setLectureNum(rs.getInt("L.lectureNum"));
+        lecture.setTopic(rs.getString("L.topic"));
+        lecture.setIntro(rs.getString("L.intro"));
+        lecture.setImage(rs.getString("L.image"));
+        lecture.setCreateDate(rs.getString("L.createDate").substring(0,19));
+        lecture.setScheduleDate(rs.getString("L.scheduleDate"));
+        lecture.setStartTime(rs.getTime("L.startTime").toString().substring(0,5));
+        lecture.setEndTime(rs.getTime("L.endTime").toString().substring(0,5));
+        lecture.setStatus(rs.getString("L.status"));
+        lecture.setUrl(rs.getString("L.url"));
+        lecture.setRealStart(rs.getString("L.realStart"));
+        lecture.setRealEnd(rs.getString("L.realEnd"));
         return lecture;
     }
  

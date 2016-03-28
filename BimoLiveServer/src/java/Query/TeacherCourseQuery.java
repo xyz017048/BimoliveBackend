@@ -11,6 +11,7 @@ import Model.CourseModel;
 import Model.CourseCategoryModel;
 import Model.IdModel;
 import Model.LectureModel;
+import Model.StudentGetLectureInfoModel;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -354,11 +355,12 @@ public class TeacherCourseQuery
         return lectures;
     }
     
-    public LectureModel getSingleLecture(int idUser, int idLecture)
+    public StudentGetLectureInfoModel getSingleLecture(int idUser, int idLecture)
     {
         Connection conn = Connector.Get();
         if (conn == null)
             return null;
+        StudentGetLectureInfoModel lectureInfoModel = new StudentGetLectureInfoModel();
         LectureModel lecture = new LectureModel();
         try
         {
@@ -382,19 +384,21 @@ public class TeacherCourseQuery
                 lecture.setEndTime(rs.getTime("endTime").toString().substring(0,5));
                 lecture.setStatus(rs.getString("status"));
                 lecture.setUrl(rs.getString("url"));
+                lectureInfoModel.setLectureInfo(lecture);
+                lectureInfoModel.setCourseName(rs.getString("name"));
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
-            lecture = null;
+            lectureInfoModel = null;
         }
         finally
         {
             Connector.CloseStmt(stmt);
             Connector.Close(conn);
         }
-        return lecture;
+        return lectureInfoModel;
     }
     
     

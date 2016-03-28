@@ -13,6 +13,7 @@ public class StudentGetLectureInfoModel
 {
     private String teacherFirstName;
     private String teacherLastName;
+    private String courseName;
     private int idTeacher;
     private LectureModel lectureInfo;
     private int followCourse;
@@ -23,6 +24,7 @@ public class StudentGetLectureInfoModel
     {
         this.teacherFirstName = "";
         this.teacherLastName = "";
+        this.courseName = "";
         this.idTeacher = 0;
         this.lectureInfo = new LectureModel();
         this.followCourse = 0;
@@ -84,5 +86,13 @@ public class StudentGetLectureInfoModel
 
     public void setPermitStatus(int permitStatus) {
         this.permitStatus = permitStatus;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 }

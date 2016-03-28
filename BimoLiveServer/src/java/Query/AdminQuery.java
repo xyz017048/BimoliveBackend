@@ -7,6 +7,7 @@ package Query;
 
 import DBConnector.Connector;
 import Model.CheckResult;
+import Model.PasswordCrypto;
 import Model.UserInfo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -107,16 +108,22 @@ public class AdminQuery
         try
         {
             if(action.getApplyStatus().equals("approve"))
+            {
                 action.setRoleLevel(2);
+                action.setKeyString(PasswordCrypto.getEncrypt(""+action.getResult()));
+            }
             else
+            {
                 action.setRoleLevel(1);
-            query = "UPDATE UserBasic set applyStatus = ?, idAdmin = ?, changeDate = ?, roleLevel = ? where idUser = ?";
+            }
+            query = "UPDATE UserBasic set applyStatus = ?, idAdmin = ?, changeDate = ?, roleLevel = ?, keyString = ? where idUser = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1,action.getApplyStatus());
             stmt.setInt(2,action.getIdAdmin());
             stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
             stmt.setInt(4, action.getRoleLevel());
-            stmt.setInt(5,action.getIdUser());
+            stmt.setString(5, action.getKeyString());
+            stmt.setInt(6,action.getIdUser());
             stmt.executeUpdate();
             
             result.setResult(1);

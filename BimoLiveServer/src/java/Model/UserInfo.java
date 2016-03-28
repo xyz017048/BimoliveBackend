@@ -27,6 +27,7 @@ public class UserInfo
     private String company;
     private String jobTitle;
     private String applyStatus;
+    private String keyString;
     private int idAdmin;
     
     public UserInfo()
@@ -48,6 +49,7 @@ public class UserInfo
         jobTitle = "";
         applyStatus = "";
         idAdmin = 0;
+        keyString= "";
     }
 
     public int getResult() 
@@ -190,5 +192,13 @@ public class UserInfo
 
     public void setIdAdmin(int idAdmin) {
         this.idAdmin = idAdmin;
+    }
+
+    public String getKeyString() {
+        return keyString;
+    }
+
+    public void setKeyString(String keyString) {
+        this.keyString = keyString;
     }
 }

@@ -8,6 +8,7 @@ package Controller;
 import Model.IdModel;
 import Model.LectureModel;
 import Model.ReadRequestData;
+import Model.StudentGetLectureInfoModel;
 import Query.TeacherCourseQuery;
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -60,11 +61,11 @@ public class TeacherGetSingleLecture extends HttpServlet
         try 
         {
             TeacherCourseQuery courseQuery = new TeacherCourseQuery();
-            LectureModel lecture = courseQuery.getSingleLecture(idUser, idLecture);
-            if (lecture != null)
+            StudentGetLectureInfoModel lectureInfoModel = courseQuery.getSingleLecture(idUser, idLecture);
+            if (lectureInfoModel != null)
             {
-                if (lecture.getIdLecture()!=0)
-                    out.write(gson.toJson(lecture));
+                if (lectureInfoModel.getLectureInfo().getIdLecture()!=0)
+                    out.write(gson.toJson(lectureInfoModel));
                 else
                     response.setStatus(403);
             }
