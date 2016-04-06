@@ -32,7 +32,7 @@ public class QuestionQuery
     private final String READSTAUTS = "read";
     private final String BANSTRING = "ban";
     
-    public CheckResult saveQuestion(SendQuestionRequestModel question)
+    public CheckResult saveQuestion(SendQuestionRequestModel question, boolean flag)
     {
         Connection conn = Connector.Get();
         if (conn == null)
@@ -45,13 +45,48 @@ public class QuestionQuery
             stmt.setInt(1,question.getIdUser());
             stmt.setInt(2,question.getIdLecture());
             stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-            stmt.setString(4, NEWSTATUS);
+            if (flag)
+                stmt.setString(4, NEWSTATUS);
+            else
+                stmt.setString(4, ANSWERSTRING);
             stmt.setString(5,question.getUsername());
             stmt.setString(6,question.getContent());
             stmt.executeUpdate();
             
             result.setResult(1);
             
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            Connector.CloseStmt(stmt);
+            Connector.Close(conn);
+        }
+        return result;
+    }
+    
+    public CheckResult checkTeacherHoldThisLecture (SendQuestionRequestModel question)
+    {
+        Connection conn = Connector.Get();
+        if (conn == null)
+            return null;
+        CheckResult result = new CheckResult();
+        try
+        {
+            query = "SELECT * FROM Lecture L, CourseInfo C \n" +
+                    "WHERE L.idLecture = ? and L.idCourse=C.idCourse and C.idUser = ? and L.status = ?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, question.getIdLecture());
+            stmt.setInt(2, question.getIdUser());
+            stmt.setString(3, "live");
+            rs = stmt.executeQuery();
+            if(rs.next())
+            {
+                result.setResult(1); // the teacher holds this lecture which is live
+            }
         }
         catch (Exception e)
         {

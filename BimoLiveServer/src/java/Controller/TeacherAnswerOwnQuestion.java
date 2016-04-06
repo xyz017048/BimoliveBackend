@@ -6,41 +6,29 @@
 package Controller;
 
 import Model.CheckResult;
-import Model.SendQuestionRequestModel;
 import Model.ReadRequestData;
+import Model.SendQuestionRequestModel;
 import Query.QuestionQuery;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Scanner;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.google.gson.Gson;
-import java.io.BufferedReader;
 
 /**
  *
  * @author Chonghuan
  */
-@WebServlet(name = "StudentSendQuestionResponse", urlPatterns = {"/student/sendquestion"})
-public class StudentSendQuestion extends HttpServlet 
+@WebServlet(name = "TeacherAnswerOwnQuestion", urlPatterns = {"/teacher/questionanswer"})
+public class TeacherAnswerOwnQuestion extends HttpServlet 
 {
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
-    {       
+    {   
     }
 
     /**
@@ -55,7 +43,6 @@ public class StudentSendQuestion extends HttpServlet
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException 
     {
-//        System.out.println("Request: received");
         String requesString = ReadRequestData.getData(request);
         Gson gson= new Gson();
         
@@ -72,10 +59,20 @@ public class StudentSendQuestion extends HttpServlet
         try 
         {
             QuestionQuery questionQuery = new QuestionQuery();
-            CheckResult result = questionQuery.saveQuestion(question,true);
-            if (result != null)
+            CheckResult result = questionQuery.checkTeacherHoldThisLecture(question);
+            if(result == null)
+                response.setStatus(500);
+            else if (result.getResult() != 1)
             {
-                out.write(gson.toJson(result));
+                response.setStatus(403);
+            }
+            else
+            {
+                result = questionQuery.saveQuestion(question, false);
+                if(result == null)
+                    response.setStatus(500);
+                else 
+                    out.write(gson.toJson(result));
             }
         } 
         catch(Exception ex)
@@ -94,7 +91,8 @@ public class StudentSendQuestion extends HttpServlet
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+    public String getServletInfo()
+    {
         return "Short description";
     }// </editor-fold>
 
