@@ -58,7 +58,18 @@ public class StudentCourseQuery
                 lectureInfoModel.setIdTeacher(rs.getInt("C.idUser"));
                 lectureInfoModel.setTeacherFirstName(rs.getString("firstName"));
                 lectureInfoModel.setTeacherLastName(rs.getString("lastName"));
+                if (rs.getString("C.permissionCode").equals(""))
+                    lectureInfoModel.setPermitStatus(1);
             }
+            query = "SELECT * FROM PermissionStatus P, Lecture L where P.idUser = ? and P.idCourse = L.idCourse and idLecture=?";
+            stmt = conn.prepareStatement(query);
+            stmt.setInt(1, idUser);
+            stmt.setInt(2, idLecture);
+            rs = stmt.executeQuery();
+            if(rs.next())
+                lectureInfoModel.setPermitStatus(1);
+            else if(lectureInfoModel.getPermitStatus() !=1)
+                return lectureInfoModel;
             query = "SELECT * FROM FollowCourse FC, Lecture L where idUser = ? and FC.idCourse = L.idCourse and idLecture=?";
             stmt = conn.prepareStatement(query);
             stmt.setInt(1, idUser);
@@ -73,13 +84,6 @@ public class StudentCourseQuery
             rs = stmt.executeQuery();
             if(rs.next())
                 lectureInfoModel.setFollowTeacher(1);
-            query = "SELECT * FROM PermissionStatus P, Lecture L where P.idUser = ? and P.idCourse = L.idCourse and idLecture=?";
-            stmt = conn.prepareStatement(query);
-            stmt.setInt(1, idUser);
-            stmt.setInt(2, idLecture);
-            rs = stmt.executeQuery();
-            if(rs.next())
-                lectureInfoModel.setPermitStatus(1);
         }
         catch (Exception e)
         {

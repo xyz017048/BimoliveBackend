@@ -173,7 +173,11 @@ public class TeacherCourseQuery
             stmt.setTime(11,lecture.getSqlTime(lecture.getEndTime()));
             stmt.executeUpdate();
             
-            result.setResult(1); 
+            result.setResult(-1); 
+            query = "SELECT MAX(idLecture) from Lecture"; 
+            rs = stmt.executeQuery(query);
+            rs.next();
+            result.setResult(rs.getInt("MAX(idLecture)"));
         }
         catch (Exception e)
         {
@@ -483,11 +487,12 @@ public class TeacherCourseQuery
                 result.setResult(2); // the teacher does not hold this live lecture
                 return result;
             }
-            query = "UPDATE Lecture set status = ?, url = ? WHERE idLecture = ?";
+            query = "UPDATE Lecture set status = ?, url = ?, image = ? WHERE idLecture = ?";
             stmt = conn.prepareStatement(query);
             stmt.setString(1, REPLAYSTATUS);
             stmt.setString(2, idModel.getUrl());
-            stmt.setInt(3,idModel.getIdLecture());
+            stmt.setString(3, idModel.getImage());
+            stmt.setInt(4,idModel.getIdLecture());
             stmt.executeUpdate();
             
             result.setResult(1);  

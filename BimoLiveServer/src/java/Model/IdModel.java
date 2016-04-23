@@ -18,6 +18,7 @@ public class IdModel
     private int idAdmin;
     private String code;
     private String url;
+    private String image;
         
     public IdModel()
     {
@@ -28,6 +29,7 @@ public class IdModel
         this.idAdmin = 0;
         this.code = "";
         this.url= "";
+        this.image = "";
     }
 
     public int getIdUser() {
@@ -84,5 +86,13 @@ public class IdModel
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

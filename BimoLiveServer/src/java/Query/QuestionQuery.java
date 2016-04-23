@@ -31,6 +31,7 @@ public class QuestionQuery
     private final String ANSWERSTRING = "answer";
     private final String READSTAUTS = "read";
     private final String BANSTRING = "ban";
+    private final String FLAGSTRING = "flag";
     
     public CheckResult saveQuestion(SendQuestionRequestModel question, boolean flag)
     {
@@ -48,7 +49,7 @@ public class QuestionQuery
             if (flag)
                 stmt.setString(4, NEWSTATUS);
             else
-                stmt.setString(4, ANSWERSTRING);
+                stmt.setString(4, FLAGSTRING);
             stmt.setString(5,question.getUsername());
             stmt.setString(6,question.getContent());
             stmt.executeUpdate();
@@ -148,36 +149,34 @@ public class QuestionQuery
             {
                 query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status "
                         + "FROM QuestionQueue Q, Lecture L "
-                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? ) order by changeTime";
+                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status = ?) order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2, ANSWERSTRING);
                 stmt.setString(3, BANSTRING);
+                stmt.setString(4, FLAGSTRING);
             }
             else if (roleLevel == 2 && idQuestion == -1) //teacher, all
             {
                 query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status "
                         + "FROM QuestionQueue Q, Lecture L "
-                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status= ? or Q.status= ?) order by idQuestion";
+                        + "WHERE L.idLecture = Q.idLecture and L.idLecture = ? order by idQuestion";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
-                stmt.setString(2, NEWSTATUS);
-                stmt.setString(3, ANSWERSTRING);
-                stmt.setString(4, READSTAUTS);
-                stmt.setString(5, BANSTRING);
             }
             
             else if (roleLevel == 1) //student, idQuestion
             {
                 query = "SELECT idQuestion, username, content, sendTime, changeTime, Q.status, L.status\n"
                         + "FROM QuestionQueue Q, Lecture L\n" +
-                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)\n"
+                        "WHERE L.idLecture = Q.idLecture and L.idLecture = ? and (Q.status = ? or Q.status = ? or Q.status = ?) and changeTime > (SELECT changeTime From QuestionQueue where idQuestion = ?)\n"
                         + "order by changeTime";
                 stmt = conn.prepareStatement(query);
                 stmt.setInt(1, idLecture);
                 stmt.setString(2,ANSWERSTRING);
                 stmt.setString(3,BANSTRING);
-                stmt.setInt(4,idQuestion);
+                stmt.setString(4, FLAGSTRING);
+                stmt.setInt(5,idQuestion);
             }
             else if (roleLevel == 2) // teacher, idQuestion
             {
